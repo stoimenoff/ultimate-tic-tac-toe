@@ -5,6 +5,7 @@ Ultimate tic-tac-toe is a "variation" of the famous tic-tac-toe game. Each squar
 
 ## This implementation of the game
 This project is supposed to implement the following functionalities:
+
 1. Singleplayer game with 3(maybe 4) difficulties.
     * Option for "best of N" game
     * Save/load option
