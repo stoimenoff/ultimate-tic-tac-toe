@@ -1,0 +1,2 @@
+class MinimaxBot:
+    pass
