@@ -1,0 +1,2 @@
+class OfflinePlayer:
+    pass
