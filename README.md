@@ -6,8 +6,8 @@ Ultimate tic-tac-toe is a "variation" of the famous tic-tac-toe game. Each squar
 ## This implementation of the game
 This project is supposed to implement the following functionalities:
 1. Singleplayer game with 3(maybe 4) difficulties.
-    1. Option for "best of N" game
-    2. Save/load option
+    * Option for "best of N" game
+    * Save/load option
 2. Hotseat multiplayer game.
 3. Online peer-to-peer multiplayer game.
 4. Wathcing Bot(AI) battles. (Two bots playing against each other.)
