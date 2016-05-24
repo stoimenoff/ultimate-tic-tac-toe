@@ -1,1 +1,1 @@
-# ultimate-tic-tac-tie
+# Ultimate Tic-Tac-Toe
