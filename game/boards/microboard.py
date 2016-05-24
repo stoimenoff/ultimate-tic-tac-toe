@@ -1,5 +1,5 @@
 from copy import deepcopy
-from boarditems import State, Square, IllegalMoveError
+from .boarditems import State, Square, IllegalMoveError
 
 
 class Microboard:
