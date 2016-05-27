@@ -15,6 +15,6 @@ class Game:
 
     def play(self):
         while self.macroboard.state == boards.State.IN_PROGRESS:
-            print(self.macroboard)
+            # print(self.macroboard)
             self.move()
-        print(self.macroboard)
+        # print(self.macroboard)

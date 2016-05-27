@@ -75,6 +75,10 @@ class Macroboard:
             return State.DRAW
         return State.IN_PROGRESS
 
+    @property
+    def has_a_winner(self):
+        return self.state in {State.X_WON, State.O_WON}
+
     def make_move(self, px, py):
         x, y, i, j = self.to_coords(px, py)
         board = self.boards[x][y]
@@ -84,6 +88,17 @@ class Macroboard:
         self.__on_turn = Square.X if self.__on_turn == Square.O else Square.O
         self.last_move = (x, y, i, j)
         self.history.append(self.last_move)
+
+    def undo_last_move(self):
+        if self.last_move is None:
+            pass
+        x, y, i, j = self.last_move
+        self.boards[x][y].undo_last_move()
+        if len(self.history) > 1:
+            self.last_move = self.history[-2]
+        else:
+            self.last_move = None
+        del self.history[-1]
 
     def __str__(self):
         str = '-' * (self.SIZE ** 2 + self.SIZE + 1) + '\n'

@@ -8,6 +8,8 @@ class Microboard:
             raise ValueError('Invalid board size!')
         self.SIZE = size
         self.__grid = [[Square.EMPTY] * size for _ in range(size)]
+        self.last_move = None
+        self.history = []
 
     @property
     def state(self):
@@ -36,6 +38,19 @@ class Microboard:
         if value not in {Square.X, Square.O}:
             raise IllegalMoveError('Move value is incorrect!')
         self.__grid[x][y] = value
+        self.last_move = (x, y)
+        self.history.append(self.last_move)
+
+    def undo_last_move(self):
+        if self.last_move is None:
+            pass
+        x, y = self.last_move
+        self.__grid[x][y] = Square.EMPTY
+        if len(self.history) > 1:
+            self.last_move = self.history[-2]
+        else:
+            self.last_move = None
+        del self.history[-1]
 
     @property
     def empty_squares(self):
