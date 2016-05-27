@@ -8,7 +8,8 @@ class Macroboard:
         self.boards = [[Microboard(size) for _ in range(size)]
                        for _ in range(size)]
         self.__on_turn = first
-        self.__last_move = None
+        self.last_move = None
+        self.history = []
 
     @property
     def dead_boards(self):
@@ -42,9 +43,9 @@ class Macroboard:
 
     @property
     def available_boards(self):
-        if self.__last_move is None:
+        if self.last_move is None:
             return self.active_boards
-        x, y = self.__last_move[-2:]
+        x, y = self.last_move[-2:]
         if self.boards[x][y].state == State.IN_PROGRESS:
             return [(x, y)]
         return self.active_boards
@@ -81,7 +82,8 @@ class Macroboard:
             raise IllegalMoveError('Illegal move. Board is unavailable.')
         board.set_square(i, j, self.__on_turn)
         self.__on_turn = Square.X if self.__on_turn == Square.O else Square.O
-        self.__last_move = (x, y, i, j)
+        self.last_move = (x, y, i, j)
+        self.history.append(self.last_move)
 
     def __str__(self):
         str = '-' * (self.SIZE ** 2 + self.SIZE + 1) + '\n'
