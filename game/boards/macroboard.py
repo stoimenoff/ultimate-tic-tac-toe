@@ -43,6 +43,8 @@ class Macroboard:
 
     @property
     def available_boards(self):
+        if self.state != State.IN_PROGRESS:
+            return []
         if self.last_move is None:
             return self.active_boards
         x, y = self.last_move[-2:]
