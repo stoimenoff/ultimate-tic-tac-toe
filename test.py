@@ -12,14 +12,14 @@ class QGame(QWidget):
         self.bot = game.players.ai.EuristicsBot('Bot')
         self.board = game.boards.Macroboard()
         layout = QVBoxLayout()
-        layout.addWidget(QMacroBoard(self.button_click))
+        layout.addWidget(QMacroBoard(self.buttonClick))
         self.setLayout(layout)
 
     @property
     def qBoard(self):
         return self.layout().itemAt(0).widget()
 
-    def button_click(self):
+    def buttonClick(self):
         self.qBoard.setClickEnabled(False)
         button = self.sender()
         print(button.id)
@@ -32,7 +32,6 @@ class QGame(QWidget):
             return
 
         self.qBoard.updateBoard(self.board)
-        # print('Waiting for bot')
 
         try:
             time.sleep(2)
@@ -41,7 +40,7 @@ class QGame(QWidget):
         except game.boards.IllegalMoveError as err:
             print(err)
         except:  # TODO implmemnet GameEndedError
-            print('err')
+            print('Bot move failed')
 
         self.qBoard.updateBoard(self.board)
         self.qBoard.setClickEnabled(True)

@@ -9,31 +9,32 @@ BOARD_COLORS = {'X': 'lightblue', 'O': 'lightpink',
 
 
 class QMicroBoard(QWidget):
-    def __init__(self, row, column, button_click, SIZE=3):
+    def __init__(self, row, column, onButtonClick, SIZE=3):
         super(QMicroBoard, self).__init__()
         self.SIZE = SIZE
         self.row = row
         self.column = column
-        self.button_click = button_click
+        self.onButtonClick = onButtonClick
         grid = QGridLayout()
         for i in range(SIZE):
             for j in range(SIZE):
                 sqr = Square(row * SIZE**3 + i * SIZE**2 + column * SIZE + j)
                 # sqr = Square((row, column, i, j))
                 # sqr = Square((row * SIZE + column, i * SIZE + j))
-                sqr.clicked.connect(self.button_click)
+                sqr.clicked.connect(self.onButtonClick)
                 grid.addWidget(sqr, i, j)
         grid.setSpacing(5)
         grid.setVerticalSpacing(5)
         self.setLayout(grid)
+        self.lightUp()
 
     def changeBgColor(self, color):
         self.setStyleSheet('background-color:' + color)
 
-    def light_up(self):
+    def lightUp(self):
         self.changeBgColor(BOARD_COLORS['l'])
 
-    def light_down(self):
+    def lightDown(self):
         self.changeBgColor(BOARD_COLORS[' '])
 
     def updateBoard(self, microboard):
@@ -56,15 +57,15 @@ class QMicroBoard(QWidget):
 
 
 class QMacroBoard(QWidget):
-    def __init__(self, button_click, SIZE=3):
+    def __init__(self, onButtonClick, SIZE=3):
         super(QMacroBoard, self).__init__()
         self.SIZE = SIZE
-        self.button_click = button_click
+        self.onButtonClick = onButtonClick
         grid = QGridLayout()
         for i in range(SIZE):
             for j in range(SIZE):
-                grid.addWidget(QMicroBoard(i, j, self.button_click, self.SIZE),
-                               i, j)
+                grid.addWidget(QMicroBoard(i, j, self.onButtonClick,
+                               self.SIZE), i, j)
         grid.setSpacing(0)
         grid.setVerticalSpacing(0)
         self.setLayout(grid)
@@ -72,10 +73,10 @@ class QMacroBoard(QWidget):
     def updateBoard(self, macroboard):
         for i in range(self.layout().count()):
             microboard = macroboard.boards[i // self.SIZE][i % self.SIZE]
-            self.layout().itemAt(i).widget().light_down()
+            self.layout().itemAt(i).widget().lightDown()
             self.layout().itemAt(i).widget().updateBoard(microboard)
         for (i, j) in macroboard.available_boards:
-            self.layout().itemAt(i * self.SIZE + j).widget().light_up()
+            self.layout().itemAt(i * self.SIZE + j).widget().lightUp()
         for (i, j) in macroboard.dead_boards:
             state = macroboard.boards[i][j].state
             board = self.layout().itemAt(i * self.SIZE + j).widget()
@@ -85,6 +86,7 @@ class QMacroBoard(QWidget):
     def setClickEnabled(self, enabled):
         for i in range(self.layout().count()):
             self.layout().itemAt(i).widget().setClickEnabled(enabled)
+
 
 SHEET = '''
         border: 1px solid black;
@@ -102,5 +104,4 @@ class Square(QPushButton):
         self.setFocusPolicy(Qt.NoFocus)
 
     def changeFontColor(self, color):
-        self.setStyleSheet(SHEET +
-                           'color: ' + color)
+        self.setStyleSheet(SHEET + 'color: ' + color)
