@@ -2,6 +2,7 @@ import sys
 from gui import *
 import game
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout
+import time
 
 
 class QGame(QWidget):
@@ -14,21 +15,36 @@ class QGame(QWidget):
         layout.addWidget(QMacroBoard(self.button_click))
         self.setLayout(layout)
 
+    @property
+    def qBoard(self):
+        return self.layout().itemAt(0).widget()
+
     def button_click(self):
+        self.qBoard.setClickEnabled(False)
         button = self.sender()
-        # button.setText('X')
         print(button.id)
         px, py = button.id // 9, button.id % 9
         try:
             self.board.make_move(px, py)
         except game.boards.IllegalMoveError as err:
             print(err)
+            self.qBoard.setClickEnabled(True)
             return
 
-        move = self.bot.choose_move(self.board)
-        self.board.make_move(*move)
+        self.qBoard.updateBoard(self.board)
+        # print('Waiting for bot')
 
-        self.layout().itemAt(0).widget().update(self.board)
+        try:
+            time.sleep(2)
+            move = self.bot.choose_move(self.board)
+            self.board.make_move(*move)
+        except game.boards.IllegalMoveError as err:
+            print(err)
+        except:  # TODO implmemnet GameEndedError
+            print('err')
+
+        self.qBoard.updateBoard(self.board)
+        self.qBoard.setClickEnabled(True)
 
 
 if __name__ == '__main__':

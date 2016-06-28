@@ -36,12 +36,16 @@ class QMicroBoard(QWidget):
     def light_down(self):
         self.changeBgColor(BOARD_COLORS[' '])
 
-    def update(self, microboard):
+    def updateBoard(self, microboard):
         for i in range(self.layout().count()):
             square = microboard.grid[i // self.SIZE][i % self.SIZE]
             button = self.layout().itemAt(i).widget()
             button.setText(square.value)
             button.changeFontColor(SQUARE_COLORS[square.value])
+
+    def setClickEnabled(self, enabled):
+        for i in range(self.layout().count()):
+            self.layout().itemAt(i).widget().setEnabled(enabled)
 
     def paintEvent(self, pe):
         opt = QStyleOption()
@@ -65,17 +69,22 @@ class QMacroBoard(QWidget):
         grid.setVerticalSpacing(0)
         self.setLayout(grid)
 
-    def update(self, macroboard):
+    def updateBoard(self, macroboard):
         for i in range(self.layout().count()):
             microboard = macroboard.boards[i // self.SIZE][i % self.SIZE]
             self.layout().itemAt(i).widget().light_down()
-            self.layout().itemAt(i).widget().update(microboard)
+            self.layout().itemAt(i).widget().updateBoard(microboard)
         for (i, j) in macroboard.available_boards:
             self.layout().itemAt(i * self.SIZE + j).widget().light_up()
         for (i, j) in macroboard.dead_boards:
             state = macroboard.boards[i][j].state
             board = self.layout().itemAt(i * self.SIZE + j).widget()
             board.changeBgColor(BOARD_COLORS[state.value])
+        self.repaint()
+
+    def setClickEnabled(self, enabled):
+        for i in range(self.layout().count()):
+            self.layout().itemAt(i).widget().setClickEnabled(enabled)
 
 SHEET = '''
         border: 1px solid black;
