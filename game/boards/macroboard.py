@@ -1,5 +1,5 @@
 from .microboard import Microboard
-from .boarditems import State, Square, IllegalMoveError
+from .boarditems import State, Square, IllegalMoveError, GameEndedError
 
 
 class Macroboard:
@@ -82,6 +82,8 @@ class Macroboard:
         return self.state in {State.X_WON, State.O_WON}
 
     def make_move(self, px, py):
+        if self.state != State.IN_PROGRESS:
+            raise GameEndedError('Cannot make move. The game has ended.')
         x, y, i, j = self.to_coords(px, py)
         board = self.boards[x][y]
         if (x, y) not in self.available_boards:

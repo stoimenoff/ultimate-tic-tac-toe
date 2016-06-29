@@ -5,7 +5,7 @@ from PyQt5.QtGui import QPainter
 
 SQUARE_COLORS = {'X': 'blue', 'O': 'red', ' ': 'black'}
 BOARD_COLORS = {'X': 'lightblue', 'O': 'lightpink',
-                ' ': 'white', '-': 'lightyellow', 'l': 'lightgreen'}
+                ' ': 'white', '-': 'darkgray', 'l': 'lightgreen'}
 
 
 class QMicroBoard(QWidget):
@@ -81,6 +81,7 @@ class QMacroBoard(QWidget):
             state = macroboard.boards[i][j].state
             board = self.layout().itemAt(i * self.SIZE + j).widget()
             board.changeBgColor(BOARD_COLORS[state.value])
+            print(BOARD_COLORS[state.value], state)
         self.repaint()
 
     def setClickEnabled(self, enabled):

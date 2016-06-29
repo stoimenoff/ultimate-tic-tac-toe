@@ -16,3 +16,7 @@ class Square(Enum):
 
 class IllegalMoveError(Exception):
     pass
+
+
+class GameEndedError(Exception):
+    pass
