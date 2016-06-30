@@ -8,7 +8,7 @@ import pickle
 
 
 class SinglePlayerGame(QWidget):
-    def __init__(self, difficulty, numberOfGames):
+    def __init__(self, difficulty=0, numberOfGames=1):
         super(SinglePlayerGame, self).__init__()
         self.difficulty = difficulty
         self.numberOfGames = numberOfGames
@@ -48,27 +48,53 @@ class SinglePlayerGame(QWidget):
         layout.addWidget(self.saveButton, 4, 1)
         layout.addWidget(self.message, 5, 0, 1, 2)
         self.setLayout(layout)
-        self.resize(400, 750)
+        self.resize(400, 800)
+
+    def displayMessage(self, message):
+        self.message.setText(message)
+        self.message.show()
+        self.repaint()
+
+    def hideMessage(self):
+        self.message.hide()
+        self.repaint()
 
     def updateScoreAndReset(self):
-        time.sleep(3)
         self.gamesPlayed += 1
         self.playerIsNotFirst = not self.playerIsNotFirst
         result = self.gameWidget.board.state
+        message = ''
         if result == game.boards.State.X_WON:
             self.playerScore += 3
+            message = 'Congrats! You won the game!'
         elif result == game.boards.State.O_WON:
             self.opponentScore += 3
+            message = 'Sorry! You lost the game!'
         elif result == game.boards.State.DRAW:
             self.playerScore += 1
             self.opponentScore += 1
+            message = 'The game ended in a draw!'
+        self.displayMessage(message)
         self.playerScoreLcd.display(self.playerScore)
         self.opponentScoreLcd.display(self.opponentScore)
         if self.numberOfGames > self.gamesPlayed:
-            self.updateGameCounter()
+            for i in range(3, 0, -1):
+                self.displayMessage(message + ' New game starting in ' +
+                                    str(i))
+                time.sleep(1)
+            self.hideMessage()
             self.gameWidget.reset(self.playerIsNotFirst)
+            self.updateGameCounter()
         else:
-            pass
+            self.announceResult()
+
+    def announceResult(self):
+        if self.playerScore > self.opponentScore:
+            self.displayMessage('Congrats! You won the series!')
+        elif self.playerScore < self.opponentScore:
+            self.displayMessage('Sorry. You lost the series!')
+        else:
+            self.displayMessage('The series ended in a draw!')
 
     def updateGameCounter(self):
         self.gamesCounter.setText('Game ' + str(self.gamesPlayed + 1) +
@@ -90,16 +116,18 @@ class SinglePlayerGame(QWidget):
             return game.players.ai.EuristicsBot('Bot')
 
     def saveGame(self):
+        if self.gamesPlayed == self.numberOfGames:
+            if self.gameWidget.board.state != game.boards.State.IN_PROGRESS:
+                self.displayMessage('Cannot save. The game has ended.')
+                return
         filename = QFileDialog().getSaveFileName(self, 'Save game',
                                                  'untitledgame')
         if not filename[0]:
             return
-        self.message.setText('Saving...')
-        self.message.show()
+        self.displayMessage('Saving...')
         with open(filename[0], 'wb') as handle:
             pickle.dump(self.getConfiguration(), handle)
-        self.message.setText('Saved!')
-        self.message.show()
+        self.displayMessage('Saved!')
 
     def getConfiguration(self):
         return (self.difficulty,
