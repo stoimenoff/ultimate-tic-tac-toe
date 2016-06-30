@@ -48,7 +48,6 @@ class SinglePlayerGame(QWidget):
         layout.addWidget(self.saveButton, 3, 1)
         layout.addWidget(self.message, 4, 0, 1, 2)
         self.setLayout(layout)
-        self.resize(400, 800)
 
     def displayMessage(self, message):
         self.message.setText(message)
@@ -147,3 +146,6 @@ class SinglePlayerGame(QWidget):
         self.playerIsNotFirst = config[5]
         self.gameWidget.loadBoard(config[6])
         self.gameWidget.setSecondPlayer(self.getOpponent())
+        self.updateGameCounter()
+        self.playerScoreLcd.display(self.playerScore)
+        self.opponentScoreLcd.display(self.opponentScore)

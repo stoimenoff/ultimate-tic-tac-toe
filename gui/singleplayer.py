@@ -1,6 +1,7 @@
 from . import SinglePlayerGame
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QFileDialog,
-                             QStackedWidget, QGroupBox, QRadioButton)
+                             QStackedWidget, QGroupBox, QRadioButton, QSpinBox,
+                             QHBoxLayout, QLabel)
 import time
 import pickle
 
@@ -11,8 +12,15 @@ class SinglePlayerMenu(QWidget):
         self.startButton = QPushButton('Start new game')
         self.loadButton = QPushButton('Load saved game')
         self.difficultyMenu = self.createDifficultyMenu()
+        self.numberOfGamesSpinBox = QSpinBox()
+        self.numberOfGamesSpinBox.setRange(1, 19)
+        self.numberOfGamesSpinBox.setFixedWidth(50)
+        spinBoxLayout = QHBoxLayout()
+        spinBoxLayout.addWidget(QLabel('Number of games'))
+        spinBoxLayout.addWidget(self.numberOfGamesSpinBox)
         layout = QVBoxLayout()
         layout.addWidget(self.difficultyMenu)
+        layout.addLayout(spinBoxLayout)
         layout.addWidget(self.startButton)
         layout.addWidget(self.loadButton)
         self.setLayout(layout)
@@ -67,14 +75,18 @@ class SinglePlayer(QWidget):
 
     def startGame(self):
         difficulty = self.gameMenu.difficultySelected
-        numberOfGames = 3
+        numberOfGames = self.gameMenu.numberOfGamesSpinBox.value()
         self.game = SinglePlayerGame(difficulty, numberOfGames)
         self.stack.addWidget(self.game)
         self.stack.setCurrentWidget(self.game)
 
     def loadGame(self):
         filename = QFileDialog().getOpenFileName(self, 'Load game')
+        if not filename[0]:
+            return
         with open(filename[0], 'rb') as handle:
             config = pickle.load(handle)
         self.game = SinglePlayerGame()
         self.game.loadConfiguration(config)
+        self.stack.addWidget(self.game)
+        self.stack.setCurrentWidget(self.game)

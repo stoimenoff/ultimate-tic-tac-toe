@@ -102,6 +102,7 @@ class Square(QPushButton):
         self.id = id
         self.setStyleSheet(SHEET)
         self.setFocusPolicy(Qt.NoFocus)
+        # self.setFixedSize(50, 50)
 
     def changeFontColor(self, color):
         self.setStyleSheet(SHEET + 'color: ' + color)
