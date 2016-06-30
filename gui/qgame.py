@@ -40,7 +40,6 @@ class QGame(QWidget):
 
     def initGame(self, humanIsNotFirst, secondPlayer):
         self.qBoard.setClickEnabled(True)
-        # self.bot = game.players.ai.EuristicsBot('Bot')
         self.bot = secondPlayer
         self.board = game.boards.Macroboard(not humanIsNotFirst)
         if humanIsNotFirst:
@@ -86,3 +85,10 @@ class QGame(QWidget):
             return
 
         self.botMove()
+
+    def loadBoard(self, board):
+        self.board = board
+        self.qBoard.updateBoard(self.board)
+
+    def setSecondPlayer(self, secondPlayer):
+        self.bot = secondPlayer

@@ -2,8 +2,9 @@ import game
 from . import QGame
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QWidget, QGridLayout, QPushButton,
-                             QLabel, QLCDNumber)
+                             QLabel, QLCDNumber, QFileDialog)
 import time
+import pickle
 
 
 class SinglePlayerGame(QWidget):
@@ -25,20 +26,28 @@ class SinglePlayerGame(QWidget):
         self.gamesCounter.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         self.updateGameCounter()
 
-        layoyt = QGridLayout()
+        layout = QGridLayout()
+        layout.setColumnStretch(0, 1)
+        layout.setColumnStretch(1, 1)
         self.scoreLabel = QLabel('Score: ')
 
         self.gameWidget = QGame(self.getOpponent())
         self.gameWidget.gameEnded.connect(self.updateScoreAndReset)
+        self.saveButton = QPushButton('Save game')
+        self.saveButton.clicked.connect(self.saveGame)
         self.exitButton = QPushButton('Exit to menu')
-        layoyt.addWidget(self.createLabel('You'), 0, 0)
-        layoyt.addWidget(self.createLabel('Opponent'), 0, 1)
-        layoyt.addWidget(self.playerScoreLcd, 1, 0)
-        layoyt.addWidget(self.opponentScoreLcd, 1, 1)
-        layoyt.addWidget(self.gameWidget, 2, 0, 1, 2)
-        layoyt.addWidget(self.gamesCounter, 3, 0)
-        layoyt.addWidget(self.exitButton, 3, 1)
-        self.setLayout(layoyt)
+        self.message = self.createLabel('')
+        self.message.hide()
+        layout.addWidget(self.createLabel('You'), 0, 0)
+        layout.addWidget(self.createLabel('Opponent'), 0, 1)
+        layout.addWidget(self.playerScoreLcd, 1, 0)
+        layout.addWidget(self.opponentScoreLcd, 1, 1)
+        layout.addWidget(self.gameWidget, 2, 0, 1, 2)
+        layout.addWidget(self.gamesCounter, 3, 0)
+        layout.addWidget(self.exitButton, 3, 1)
+        layout.addWidget(self.saveButton, 4, 1)
+        layout.addWidget(self.message, 5, 0, 1, 2)
+        self.setLayout(layout)
         self.resize(400, 750)
 
     def updateScoreAndReset(self):
@@ -79,3 +88,34 @@ class SinglePlayerGame(QWidget):
             return game.players.ai.EuristicsBot('Bot')
         elif self.difficulty == 3:
             return game.players.ai.EuristicsBot('Bot')
+
+    def saveGame(self):
+        filename = QFileDialog().getSaveFileName(self, 'Save game',
+                                                 'untitledgame')
+        if not filename[0]:
+            return
+        self.message.setText('Saving...')
+        self.message.show()
+        with open(filename[0], 'wb') as handle:
+            pickle.dump(self.getConfiguration(), handle)
+        self.message.setText('Saved!')
+        self.message.show()
+
+    def getConfiguration(self):
+        return (self.difficulty,
+                self.numberOfGames,
+                self.gamesPlayed,
+                self.playerScore,
+                self.opponentScore,
+                self.playerIsNotFirst,
+                self.gameWidget.board)
+
+    def loadConfiguration(self, config):
+        self.difficulty = config[0]
+        self.numberOfGames = config[1]
+        self.gamesPlayed = config[2]
+        self.playerScore = config[3]
+        self.opponentScore = config[4]
+        self.playerIsNotFirst = config[5]
+        self.gameWidget.loadBoard(config[6])
+        self.gameWidget.setSecondPlayer(self.getOpponent())
