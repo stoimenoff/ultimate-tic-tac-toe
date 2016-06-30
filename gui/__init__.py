@@ -1,2 +1,3 @@
 from .qboards import QMacroBoard, QMicroBoard
-__all__ = ['QMacroBoard', 'QMicroBoard']
+from .qgame import QGame
+__all__ = ['QMacroBoard', 'QMicroBoard', 'QGame']

@@ -3,11 +3,11 @@ from .boarditems import State, Square, IllegalMoveError, GameEndedError
 
 
 class Macroboard:
-    def __init__(self, size=3, first=Square.X):
+    def __init__(self, x_is_first=True, size=3):
         self.SIZE = size
         self.boards = [[Microboard(size) for _ in range(size)]
                        for _ in range(size)]
-        self.__on_turn = first
+        self.__on_turn = Square.X if x_is_first else Square.O
         self.last_move = None
         self.history = []
 

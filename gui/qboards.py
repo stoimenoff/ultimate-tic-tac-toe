@@ -81,7 +81,6 @@ class QMacroBoard(QWidget):
             state = macroboard.boards[i][j].state
             board = self.layout().itemAt(i * self.SIZE + j).widget()
             board.changeBgColor(BOARD_COLORS[state.value])
-            print(BOARD_COLORS[state.value], state)
         self.repaint()
 
     def setClickEnabled(self, enabled):
