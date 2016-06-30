@@ -7,6 +7,6 @@ from PyQt5.QtWidgets import QApplication
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     # window = QGame()
-    window = SinglePlayerGame(1, 2)
+    window = SinglePlayerGame(1, 3)
     window.show()
     sys.exit(app.exec_())
