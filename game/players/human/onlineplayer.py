@@ -24,13 +24,13 @@ class RemotePlayer(Player):
 
 
 class ServerPlayer(Player):
-    def __init__(self, on_move_request, name='Remote player'):
+    def __init__(self, name='Remote player'):
         super(ServerPlayer, self).__init__(name)
         self.opponent = None
-        self.on_move_request = on_move_request
 
-    def listen(self, host='localhost', port=5007):
+    def listen(self, on_move_request, host='localhost', port=5007):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind((host, port))
             s.listen(1)
             connection, address = s.accept()
@@ -41,5 +41,8 @@ class ServerPlayer(Player):
             with connection:
                 data = connection.recv(1024)
                 name, macroboard = pickle.loads(data)
-                move = self.on_move_request(name, macroboard)
+                move = on_move_request(name, macroboard)
                 connection.send(pickle.dumps(move))
+
+    def reset(self):
+        self.opponent = None
