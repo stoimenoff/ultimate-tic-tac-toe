@@ -1,3 +1,2 @@
-from .offlineplayer import OfflinePlayer
-from .onlineplayer import OnlinePlayer
-__all__ = ['OfflinePlayer', 'OnlinePlayer']
+from .onlineplayer import RemotePlayer, ServerPlayer
+__all__ = ['OfflinePlayer', 'RemotePlayer', 'ServerPlayer']

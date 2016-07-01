@@ -18,7 +18,7 @@ class WaitForMove(QThread):
         print('Waiting for move')
         try:
             move = self.player.choose_move(self.board)
-        except game.boards.GameEndedError as e:
+        except Exception as e:
             print('error ', e)
             self.error.emit(e)
             return
