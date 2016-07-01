@@ -2,9 +2,11 @@ from .. import Player
 import socket
 import pickle
 
+BYTES_LENGTH = 4096
+
 
 class RemotePlayer(Player):
-    def __init__(self, host, port, name='Remote player'):
+    def __init__(self, host='localhost', port=5007, name='Remote player'):
         super(RemotePlayer, self).__init__(name)
         self.host = host
         self.port = port
@@ -13,14 +15,18 @@ class RemotePlayer(Player):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((self.host, self.port))
             s.sendall(self.get_data(macroboard))
-            data = s.recv(1024)
-            print('Received', repr(data))
+            data = s.recv(BYTES_LENGTH)
+            print('Received', repr(data), ' Size:', len(data))
         return pickle.loads(data)
 
     def get_data(self, macroboard):
         byte_array = pickle.dumps((self.name, macroboard))
         print('size', len(byte_array))
         return byte_array
+
+    def set_target(self, host, port):
+        self.host = host
+        self.port = port
 
 
 class ServerPlayer(Player):
@@ -39,10 +45,10 @@ class ServerPlayer(Player):
             self.opponent = address[0]
             print('Connected by', address)
             with connection:
-                data = connection.recv(1024)
+                data = connection.recv(BYTES_LENGTH)
                 name, macroboard = pickle.loads(data)
                 move = on_move_request(name, macroboard)
-                connection.send(pickle.dumps(move))
+                connection.sendall(pickle.dumps(move))
 
     def reset(self):
         self.opponent = None
