@@ -65,6 +65,7 @@ class ClientGame(QWidget):
         self.titleBar.show()
         self.qBoard.updateBoard(self.board)
         if self.board.state != game.boards.State.IN_PROGRESS:
+            self.opponentMove(False)
             self.announceGameResult()
             return
         self.qBoard.setClickEnabled(True)
