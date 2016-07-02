@@ -2,8 +2,7 @@ import game
 from . import QMacroBoard
 from .qgame import WaitForMove
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QLabel, QPushButton, QVBoxLayout, QWidget)
-from PyQt5.QtCore import QThread, pyqtSignal, QMutex, QWaitCondition
+from PyQt5.QtWidgets import (QLabel, QVBoxLayout, QWidget)
 
 
 class ClientGame(QWidget):
@@ -42,14 +41,16 @@ class ClientGame(QWidget):
             return
         self.qBoard.updateBoard(self.board)
         if self.board.state != game.boards.State.IN_PROGRESS:
+            self.opponentMove(False)
             self.announceGameResult()
             return
         self.displayMessage('Waiting for opponent...')
         self.opponentMove()
 
-    def opponentMove(self):
+    def opponentMove(self, makeMove=True):
         self.moveCalculation = WaitForMove(self.opponent, self.board)
-        self.moveCalculation.done.connect(self.makeOpponentMove)
+        if makeMove:
+            self.moveCalculation.done.connect(self.makeOpponentMove)
         self.moveCalculation.error.connect(self.serverError)
         self.moveCalculation.start()
 
@@ -59,22 +60,25 @@ class ClientGame(QWidget):
         except game.boards.IllegalMoveError as err:
             print(err)
             return
-        except game.boards.GameEndedError as err:
-            print(err)
-            return
         self.displayMessage('Your turn.')
         self.titleBar.setText('Game against ' + self.opponent.name)
         self.titleBar.show()
         self.qBoard.updateBoard(self.board)
         if self.board.state != game.boards.State.IN_PROGRESS:
-            self.opponentMove()
             self.announceGameResult()
             return
         self.qBoard.setClickEnabled(True)
 
     def announceGameResult(self):
-        # tmp
-        self.displayMessage('Game ended!')
+        message = ''
+        result = self.board.state
+        if result == game.boards.State.X_WON:
+            message = 'Congrats! You won the game!'
+        elif result == game.boards.State.O_WON:
+            message = 'Sorry! You lost the game!'
+        elif result == game.boards.State.DRAW:
+            message = 'The game ended in a draw!'
+        self.displayMessage(message)
 
     def serverError(self, err):
         print('Server error:', err)

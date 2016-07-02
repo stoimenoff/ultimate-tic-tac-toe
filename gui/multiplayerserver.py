@@ -103,7 +103,7 @@ class ServerGame(QWidget):
         if self.board.state == game.boards.State.IN_PROGRESS:
             self.qBoard.setClickEnabled(True)
         else:
-            self.displayMessage('Game ended!')
+            self.announceGameResult()
             # release waiting thread
             self.requestThread.listen = False
             self.wakeRequestThread()
@@ -126,3 +126,14 @@ class ServerGame(QWidget):
             self.displayMessage('Waiting opponent to connect.')
         else:
             self.displayMessage('Waiting opponent to play.')
+
+    def announceGameResult(self):
+        message = ''
+        result = self.board.state
+        if result == game.boards.State.O_WON:
+            message = 'Congrats! You won the game!'
+        elif result == game.boards.State.X_WON:
+            message = 'Sorry! You lost the game!'
+        elif result == game.boards.State.DRAW:
+            message = 'The game ended in a draw!'
+        self.displayMessage(message)
