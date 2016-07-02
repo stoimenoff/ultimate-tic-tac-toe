@@ -3,6 +3,9 @@ from PyQt5.QtNetwork import QHostAddress
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton,
                              QStackedWidget, QSpinBox, QHBoxLayout, QLabel,
                              QLineEdit, QFrame, QGridLayout)
+from .multiplayerclient import ClientGame
+from .multiplayerserver import ServerGame
+from .hotseatgame import HotSeatGame
 
 
 class MultiPlayerMenu(QWidget):
@@ -42,7 +45,7 @@ class MultiPlayerMenu(QWidget):
         self.ipField.setFixedWidth(130)
         self.ipField.textChanged.connect(self.ipChange)
         self.portSpinBox = QSpinBox()
-        self.portSpinBox.setRange(1000, 8080)
+        self.portSpinBox.setRange(1024, 8080)
         self.portSpinBox.setFixedWidth(80)
         layout = QGridLayout()
         layout.addWidget(ipLabel, 0, 0)
@@ -103,4 +106,39 @@ class MultiPlayerMenu(QWidget):
 class MultiPlayer(QWidget):
     def __init__(self):
         super(MultiPlayer, self).__init__()
+        self.exitButton = QPushButton('Exit to menu')
+        self.game = None
+        self.menu = MultiPlayerMenu()
+        self.menu.connectButton.clicked.connect(self.connect)
+        self.menu.hostButton.clicked.connect(self.host)
+        self.menu.hotseatButton.clicked.connect(self.hotseat)
+
         self.stack = QStackedWidget()
+        self.stack.addWidget(self.menu)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.stack)
+        layout.addWidget(self.exitButton)
+
+        self.setLayout(layout)
+
+    def host(self):
+        name = self.menu.nameField.text()
+        port = self.menu.portSpinBox.value()
+        self.game = ServerGame(name, port)
+        self.showGame()
+
+    def connect(self):
+        name = self.menu.nameField.text()
+        ip = self.menu.ipField.text()
+        port = self.menu.portSpinBox.value()
+        self.game = ClientGame(name, ip, port)
+        self.showGame()
+
+    def hotseat(self):
+        self.game = HotSeatGame()
+        self.showGame()
+
+    def showGame(self):
+        self.stack.addWidget(self.game)
+        self.stack.setCurrentWidget(self.game)

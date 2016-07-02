@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QLabel, QVBoxLayout, QWidget)
 
 
 class ClientGame(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, name, host, port, parent=None):
         super(ClientGame, self).__init__(parent)
 
         self.qBoard = QMacroBoard(self.buttonClick)
@@ -22,7 +22,7 @@ class ClientGame(QWidget):
         layout.addWidget(self.statusBar)
         self.setLayout(layout)
 
-        self.opponent = game.players.human.RemotePlayer()
+        self.opponent = game.players.human.RemotePlayer(name, host, port)
         self.opponentConnected = False
         self.board = game.boards.Macroboard()
 

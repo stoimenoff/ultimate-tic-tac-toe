@@ -61,6 +61,8 @@ class ServerPlayer(Player):
     def reset(self):
         self.opponent = None
 
-    def set_address(self, host, port=DEFAULT_PORT):
+    def set_host(self, host):
         self.host = host
+
+    def set_port(self, port):
         self.port = port

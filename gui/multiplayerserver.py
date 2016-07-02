@@ -41,7 +41,7 @@ class WaitForRequest(QThread):
 
 
 class ServerGame(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, name, port, parent=None):
         super(ServerGame, self).__init__(parent)
 
         self.qBoard = QMacroBoard(self.onButtonClick)
@@ -57,7 +57,8 @@ class ServerGame(QWidget):
         layout.addWidget(self.statusBar)
         self.setLayout(layout)
 
-        self.server = game.players.human.ServerPlayer()
+        self.server = game.players.human.ServerPlayer(name)
+        self.server.set_port(port)
         self.opponentConnected = False
         self.board = None
         self.last_click = None

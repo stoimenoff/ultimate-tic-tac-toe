@@ -77,8 +77,7 @@ class SinglePlayer(QWidget):
         difficulty = self.gameMenu.difficultySelected
         numberOfGames = self.gameMenu.numberOfGamesSpinBox.value()
         self.game = SinglePlayerGame(difficulty, numberOfGames)
-        self.stack.addWidget(self.game)
-        self.stack.setCurrentWidget(self.game)
+        self.showGame()
 
     def loadGame(self):
         filename = QFileDialog().getOpenFileName(self, 'Load game')
@@ -88,5 +87,8 @@ class SinglePlayer(QWidget):
             config = pickle.load(handle)
         self.game = SinglePlayerGame()
         self.game.loadConfiguration(config)
+        self.showGame()
+
+    def showGame(self):
         self.stack.addWidget(self.game)
         self.stack.setCurrentWidget(self.game)
