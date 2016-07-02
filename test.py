@@ -4,6 +4,7 @@ from gui.hotseatgame import HotSeatGame
 from gui.singleplayer import SinglePlayer
 from gui.multiplayer import MultiPlayerMenu, MultiPlayer
 from gui.multiplayerserver import ServerGame
+from gui.maingame import MainGameMenu
 from PyQt5.QtWidgets import QApplication
 # import pickle
 
@@ -14,7 +15,8 @@ if __name__ == '__main__':
     # window = SinglePlayer()
     # window = HotSeatGame()
     # window = ServerGame()
-    window = MultiPlayer()
+    # window = MultiPlayer()
+    window = MainGameMenu()
     window.move(50, 50)
     window.show()
     sys.exit(app.exec_())
