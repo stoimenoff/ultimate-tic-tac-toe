@@ -103,13 +103,13 @@ class SinglePlayerGame(QWidget):
         return lbl
 
     def getOpponent(self):
-        if self.difficulty == 0:
-            return game.players.ai.EuristicsBot('Bot')
-        elif self.difficulty == 1:
+        if self.difficulty == 1:
             return game.players.ai.EuristicsBot('Bot')
         elif self.difficulty == 2:
             return game.players.ai.EuristicsBot('Bot')
         elif self.difficulty == 3:
+            return game.players.ai.EuristicsBot('Bot')
+        elif self.difficulty == 4:
             return game.players.ai.EuristicsBot('Bot')
 
     def saveGame(self):
