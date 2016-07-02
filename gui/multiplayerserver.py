@@ -48,7 +48,11 @@ class ServerGame(QWidget):
         self.statusBar = QLabel()
         self.statusBar.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         self.statusBar.hide()
+        self.titleBar = QLabel()
+        self.titleBar.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        self.titleBar.hide()
         layout = QVBoxLayout()
+        layout.addWidget(self.titleBar)
         layout.addWidget(self.qBoard)
         layout.addWidget(self.statusBar)
         self.setLayout(layout)
@@ -83,14 +87,15 @@ class ServerGame(QWidget):
             return
         self.qBoard.updateBoard(self.board)
         self.last_click = (px, py)
-        self.mutex.lock()
-        self.waitForClick.wakeOne()
-        self.mutex.unlock()
+        self.wakeRequestThread()
 
     def moveRequest(self):
         if not self.opponentConnected:
             self.displayMessage(self.requestThread.opponentName +
                                 ' connected to you! Game on!')
+            self.titleBar.setText('Game against ' +
+                                  self.requestThread.opponentName)
+            self.titleBar.show()
             self.opponentConnected = True
         else:
             self.displayMessage('Your turn!')
@@ -101,10 +106,13 @@ class ServerGame(QWidget):
             self.displayMessage('Game ended!')
             # release waiting thread
             self.requestThread.listen = False
-            self.mutex.lock()
-            self.waitForClick.wakeOne()
-            self.mutex.unlock()
+            self.wakeRequestThread()
         self.qBoard.updateBoard(self.board)
+
+    def wakeRequestThread(self):
+        self.mutex.lock()
+        self.waitForClick.wakeOne()
+        self.mutex.unlock()
 
     def serverError(self, err):
         print('Server error:', err)

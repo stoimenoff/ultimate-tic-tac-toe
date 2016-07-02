@@ -14,7 +14,11 @@ class ClientGame(QWidget):
         self.statusBar = QLabel()
         self.statusBar.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         self.statusBar.hide()
+        self.titleBar = QLabel()
+        self.titleBar.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        self.titleBar.hide()
         layout = QVBoxLayout()
+        layout.addWidget(self.titleBar)
         layout.addWidget(self.qBoard)
         layout.addWidget(self.statusBar)
         self.setLayout(layout)
@@ -59,6 +63,8 @@ class ClientGame(QWidget):
             print(err)
             return
         self.displayMessage('Your turn.')
+        self.titleBar.setText('Game against ' + self.opponent.name)
+        self.titleBar.show()
         self.qBoard.updateBoard(self.board)
         if self.board.state != game.boards.State.IN_PROGRESS:
             self.opponentMove()
