@@ -97,7 +97,7 @@ class Macroboard:
 
     def undo_last_move(self):
         if self.last_move is None:
-            pass
+            return
         x, y, i, j = self.last_move
         self.boards[x][y].undo_last_move()
         if len(self.history) > 1:

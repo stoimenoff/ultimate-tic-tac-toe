@@ -75,20 +75,59 @@ class TestMicroboard(unittest.TestCase):
 
 
 class TestMacroboard(unittest.TestCase):
+    MOVES = [(2, 2), (7, 6), (3, 2), (1, 7), (3, 4), (2, 5),
+             (7, 7), (4, 4), (4, 3), (4, 2), (3, 7), (0, 4), (2, 3),
+             (8, 2), (6, 8), (1, 8), (5, 7), (6, 5), (2, 8), (8, 6),
+             (6, 1), (0, 3), (0, 0), (2, 1), (8, 4), (6, 4), (1, 5),
+             (4, 7), (3, 3), (2, 0), (8, 1), (6, 3), (0, 2), (2, 7),
+             (8, 7), (6, 0), (1, 0), (5, 0), (6, 2), (0, 7), (2, 4),
+             (8, 8), (6, 7), (1, 3), (5, 2), (8, 0), (7, 0), (3, 0),
+             (1, 1), (5, 3), (7, 2), (3, 6), (5, 5), (7, 1), (3, 5)]
+
     def setUp(self):
         self.board = Macroboard()
 
-    def get_played_board(self):
-        pass
-
-    def get_dead_board(self):
-        pass
+    def play_board(self):
+        self.board = Macroboard()
+        for move in self.MOVES:
+            self.board.make_move(*move)
 
     def test_make_move(self):
         self.board.make_move(0, 0)
+        square = self.board.boards[0][0].grid[0][0]
+        self.assertEqual(square, Square.X)
+
+        self.board.make_move(0, 2)
+        square = self.board.boards[0][0].grid[0][2]
+        self.assertEqual(square, Square.O)
+
+        with self.assertRaises(IllegalMoveError):
+            self.board.make_move(0, 0)
+        with self.assertRaises(IllegalMoveError):
+            self.board.make_move(4, 4)
+
+        self.play_board()
+        with self.assertRaises(GameEndedError):
+            self.board.make_move(4, 4)
+        with self.assertRaises(GameEndedError):
+            self.board.make_move(0, 2)
 
     def test_history(self):
-        pass
+        HISTORY = [self.board.to_coords(*move) for move in self.MOVES]
+        for i in range(len(self.MOVES)):
+            self.board.make_move(*self.MOVES[i])
+            self.assertEqual(HISTORY[:i + 1], self.board.history)
+            self.assertEqual(HISTORY[i], self.board.last_move)
+        for i in range(len(self.MOVES) - 1, 0, -1):
+            self.board.undo_last_move()
+            self.assertEqual(HISTORY[:i], self.board.history)
+            self.assertEqual(HISTORY[i - 1], self.board.last_move)
+        self.board.undo_last_move()
+        self.assertEqual([], self.board.history)
+        self.assertEqual(None, self.board.last_move)
+        self.board.undo_last_move()
+        self.assertEqual([], self.board.history)
+        self.assertEqual(None, self.board.last_move)
 
     def test_to_coords(self):
         self.assertEqual(self.board.to_coords(0, 0), (0, 0, 0, 0))
@@ -119,11 +158,11 @@ class TestMacroboard(unittest.TestCase):
     def test_dead_boards(self):
         dead = self.board.dead_boards
         self.assertFalse(dead)
-        '''
-        for i in range(self.board.SIZE):
-            for j in range(self.board.SIZE):
-                self.assertIn((i, j), dead)
-        '''
+        self.play_board()
+        self.board.undo_last_move()
+        dead = [(0, 0), (0, 2), (2, 0), (2, 1), (2, 2)]
+        self.assertEqual(self.board.dead_boards, dead)
+
 
 if __name__ == '__main__':
     unittest.main()

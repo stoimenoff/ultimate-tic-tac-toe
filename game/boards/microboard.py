@@ -43,7 +43,7 @@ class Microboard:
 
     def undo_last_move(self):
         if self.last_move is None:
-            pass
+            return
         x, y = self.last_move
         self.grid[x][y] = Square.EMPTY
         if len(self.history) > 1:
