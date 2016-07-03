@@ -1,5 +1,6 @@
 from .multiplayer import MultiPlayer
 from .singleplayer import SinglePlayer
+from .spectatebotbattle import SpectateBattle
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton,
                              QStackedWidget, QHBoxLayout, QLabel,
@@ -48,6 +49,7 @@ class MainGame(QWidget):
         self.menu = MainGameMenu()
         self.menu.singlePlayerButton.clicked.connect(self.startSinglePlayer)
         self.menu.multiPlayerButton.clicked.connect(self.startMultiPlayer)
+        self.menu.spectateButton.clicked.connect(self.startSpectateBattle)
 
         self.stack = QStackedWidget()
         self.stack.addWidget(self.menu)
@@ -73,3 +75,9 @@ class MainGame(QWidget):
         self.multiPlayer.exitButton.clicked.connect(self.showMenu)
         self.stack.addWidget(self.multiPlayer)
         self.stack.setCurrentWidget(self.multiPlayer)
+
+    def startSpectateBattle(self):
+        self.spectate = SpectateBattle()
+        self.spectate.exitButton.clicked.connect(self.showMenu)
+        self.stack.addWidget(self.spectate)
+        self.stack.setCurrentWidget(self.spectate)
