@@ -2,7 +2,6 @@ from . import SinglePlayerGame
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QFileDialog,
                              QStackedWidget, QGroupBox, QRadioButton, QSpinBox,
                              QHBoxLayout, QLabel)
-import time
 import pickle
 
 

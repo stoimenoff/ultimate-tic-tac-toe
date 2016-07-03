@@ -1,10 +1,5 @@
 import sys
-from gui import *
-from gui.hotseatgame import HotSeatGame
-from gui.singleplayer import SinglePlayer
-from gui.multiplayer import MultiPlayerMenu, MultiPlayer
-from gui.multiplayerserver import ServerGame
-from gui.maingame import MainGameMenu, MainGame
+from ultimate-tic-tac-toe.gui.
 from PyQt5.QtWidgets import QApplication
 # import pickle
 

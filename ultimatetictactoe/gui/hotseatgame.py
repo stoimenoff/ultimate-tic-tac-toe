@@ -1,4 +1,4 @@
-import game
+from .. import game
 from . import QMacroBoard
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 from PyQt5.QtCore import pyqtSignal

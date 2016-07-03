@@ -1,4 +1,4 @@
-import game
+from .. import game
 from . import QMacroBoard
 from .qgame import WaitForMove
 from PyQt5.QtCore import Qt

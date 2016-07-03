@@ -1,9 +1,7 @@
-import game
-from PyQt5.QtCore import Qt
+from .. import game
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton,
-                             QStackedWidget, QHBoxLayout, QLabel, QGroupBox,
+                             QStackedWidget, QHBoxLayout, QGroupBox,
                              QRadioButton)
-from PyQt5.QtGui import QFont
 from .botbattle import BotBattle
 
 
