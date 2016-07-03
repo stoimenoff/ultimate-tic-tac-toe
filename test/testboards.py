@@ -87,8 +87,8 @@ class TestMacroboard(unittest.TestCase):
     def setUp(self):
         self.board = Macroboard()
 
-    def play_board(self):
-        self.board = Macroboard()
+    def play_board(self, x_is_first=True):
+        self.board = Macroboard(x_is_first)
         for move in self.MOVES:
             self.board.make_move(*move)
 
@@ -155,13 +155,44 @@ class TestMacroboard(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.board = Macroboard(True, 2)
 
-    def test_dead_boards(self):
+    def test_dead_and_active_boards(self):
+        ALL_BOARDS = [(i, j) for i in range(3) for j in range(3)]
         dead = self.board.dead_boards
         self.assertFalse(dead)
+        self.assertEqual(set(self.board.active_boards), set(ALL_BOARDS))
         self.play_board()
         self.board.undo_last_move()
         dead = [(0, 0), (0, 2), (2, 0), (2, 1), (2, 2)]
         self.assertEqual(self.board.dead_boards, dead)
+        active = self.board.active_boards
+        self.assertEqual(set(dead + active), set(ALL_BOARDS))
+
+    def test_available_boards(self):
+        self.assertEqual(self.board.available_boards, self.board.active_boards)
+        self.board.make_move(0, 0)
+        available = [(0, 0)]
+        self.assertEqual(self.board.available_boards, available)
+        self.board.make_move(2, 2)
+        available = [(2, 2)]
+        self.assertEqual(self.board.available_boards, available)
+        self.play_board()
+        self.assertEqual(self.board.available_boards, [])
+
+    def test_state(self):
+        self.assertEqual(self.board.state, State.IN_PROGRESS)
+        self.play_board()
+        self.assertEqual(self.board.state, State.X_WON)
+        self.play_board(False)
+        self.assertEqual(self.board.state, State.O_WON)
+        # TODO test draw
+
+    def test_has_a_winner(self):
+        self.assertFalse(self.board.has_a_winner)
+        self.play_board()
+        self.assertTrue(self.board.has_a_winner)
+        self.play_board(False)
+        self.assertTrue(self.board.has_a_winner)
+        # TODO test draw
 
 
 if __name__ == '__main__':
