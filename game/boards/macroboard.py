@@ -4,6 +4,8 @@ from .boarditems import State, Square, IllegalMoveError, GameEndedError
 
 class Macroboard:
     def __init__(self, x_is_first=True, size=3):
+        if size < 3 or size > 9:
+            raise ValueError('Invalid board size!')
         self.SIZE = size
         self.boards = [[Microboard(size) for _ in range(size)]
                        for _ in range(size)]
