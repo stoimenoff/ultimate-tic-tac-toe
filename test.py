@@ -1,10 +1,9 @@
-import sys
-from ultimate-tic-tac-toe.gui.
+from ultimatetictactoe.gui import MainGame
 from PyQt5.QtWidgets import QApplication
-# import pickle
 
 
 if __name__ == '__main__':
+    import sys
     app = QApplication(sys.argv)
     # window = SinglePlayerGame(1, 1)
     # window = SinglePlayer()

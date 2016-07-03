@@ -1,5 +1,5 @@
 from .. import game
-from . import QGame
+from .qgame import QGame
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QWidget, QGridLayout, QPushButton,
                              QLabel, QLCDNumber, QFileDialog)

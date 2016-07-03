@@ -1,5 +1,5 @@
 from .. import game
-from . import QMacroBoard
+from .qboards import QMacroBoard
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 from PyQt5.QtCore import QThread, pyqtSignal
 
