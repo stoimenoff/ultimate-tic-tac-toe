@@ -1,2 +1,0 @@
-class ServerGame:
-    pass
