@@ -1,7 +1,7 @@
 import unittest
 from copy import deepcopy
 
-from game.boards import *
+from ultimatetictactoe.game.boards import *
 
 
 class TestMicroboard(unittest.TestCase):
