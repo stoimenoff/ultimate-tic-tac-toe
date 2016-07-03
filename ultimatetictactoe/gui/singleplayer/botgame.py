@@ -1,5 +1,5 @@
-from .. import game
-from .qboards import QMacroBoard
+from ... import game
+from ..qboards import QMacroBoard
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 from PyQt5.QtCore import QThread, pyqtSignal
 
@@ -25,11 +25,11 @@ class WaitForMove(QThread):
         self.done.emit(*move)
 
 
-class QGame(QWidget):
+class BotGame(QWidget):
     gameEnded = pyqtSignal()
 
     def __init__(self, secondPlayer, humanIsNotFirst=False):
-        super(QGame, self).__init__()
+        super(BotGame, self).__init__()
         layout = QVBoxLayout()
         self.qBoard = QMacroBoard(self.buttonClick)
         layout.addWidget(self.qBoard)

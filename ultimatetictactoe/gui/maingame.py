@@ -1,6 +1,6 @@
 from .multiplayer import MultiPlayer
 from .singleplayer import SinglePlayer
-from .spectatebotbattle import SpectateBattle
+from .botbattle import SpectateBattle
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton,
                              QStackedWidget, QHBoxLayout, QLabel,

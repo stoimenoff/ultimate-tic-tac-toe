@@ -1,6 +1,6 @@
-from .. import game
-from .qboards import QMacroBoard
-from .qgame import WaitForMove
+from ... import game
+from ..qboards import QMacroBoard
+from ..singleplayer.botgame import WaitForMove
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QLabel, QVBoxLayout, QWidget)
 

@@ -1,4 +1,4 @@
-from .. import game
+from ... import game
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton,
                              QStackedWidget, QHBoxLayout, QGroupBox,
                              QRadioButton)

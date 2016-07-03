@@ -1,5 +1,5 @@
-from .. import game
-from .qgame import QGame
+from ... import game
+from .botgame import BotGame
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QWidget, QGridLayout, QPushButton,
                              QLabel, QLCDNumber, QFileDialog)
@@ -31,7 +31,7 @@ class SinglePlayerGame(QWidget):
         layout.setColumnStretch(1, 1)
         self.scoreLabel = QLabel('Score: ')
 
-        self.gameWidget = QGame(self.getOpponent())
+        self.gameWidget = BotGame(self.getOpponent())
         self.gameWidget.gameEnded.connect(self.updateScoreAndReset)
         self.saveButton = QPushButton('Save game')
         self.saveButton.clicked.connect(self.saveGame)
