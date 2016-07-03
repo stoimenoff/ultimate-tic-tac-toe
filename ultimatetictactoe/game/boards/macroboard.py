@@ -1,5 +1,6 @@
 from .microboard import Microboard
 from .boarditems import State, Square, IllegalMoveError, GameEndedError
+from copy import deepcopy
 
 
 class Macroboard:
@@ -64,12 +65,7 @@ class Macroboard:
 
     @property
     def state(self):
-        lines = [[board.state for board in row] for row in self.boards]
-        columns = zip(*lines)
-        diagonals = [[lines[i][i] for i in range(self.SIZE)],
-                     [lines[i][self.SIZE - i - 1] for i in range(self.SIZE)]]
-        lines.extend(columns)
-        lines.extend(diagonals)
+        lines = self.state_lines()
         for line in lines:
             if set(line) == {State.X_WON}:
                 return State.X_WON
@@ -105,6 +101,18 @@ class Macroboard:
         else:
             self.last_move = None
         del self.history[-1]
+
+    def get_on_turn(self):
+        return deepcopy(self.__on_turn)
+
+    def state_lines(self):
+        lines = [[board.state for board in row] for row in self.boards]
+        columns = zip(*lines)
+        diagonals = [[lines[i][i] for i in range(self.SIZE)],
+                     [lines[i][self.SIZE - i - 1] for i in range(self.SIZE)]]
+        lines.extend(columns)
+        lines.extend(diagonals)
+        return lines
 
     def __str__(self):
         str = '-' * (self.SIZE ** 2 + self.SIZE + 1) + '\n'

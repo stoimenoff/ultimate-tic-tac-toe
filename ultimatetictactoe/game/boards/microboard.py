@@ -13,14 +13,7 @@ class Microboard:
 
     @property
     def state(self):
-        lines = deepcopy(self.grid)
-        columns = zip(*self.grid)
-        lines.extend(columns)
-        diagonals = [[self.grid[i][i] for i in range(self.SIZE)],
-                     [self.grid[i][self.SIZE - i - 1] for i in
-                     range(self.SIZE)]]
-        lines.extend(diagonals)
-
+        lines = self.lines()
         for line in lines:
             if set(line) == {Square.X}:
                 return State.X_WON
@@ -59,3 +52,21 @@ class Microboard:
 
     def export_grid(self):
         return deepcopy(self.grid)
+
+    def winner(self):
+        state = self.state
+        if state == State.X_WON:
+            return Square.X
+        if state == State.O_WON:
+            return Square.O
+        return None
+
+    def lines(self):
+        lines = deepcopy(self.grid)
+        columns = zip(*lines)
+        lines.extend(columns)
+        diagonals = [[lines[i][i] for i in range(self.SIZE)],
+                     [lines[i][self.SIZE - i - 1] for i in
+                     range(self.SIZE)]]
+        lines.extend(diagonals)
+        return lines
