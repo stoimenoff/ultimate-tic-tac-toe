@@ -20,18 +20,6 @@ def winning_move(macroboard):
 
 
 @deepcopy_board
-def number_of_winning_moves(macroboard):
-    wins = 0
-    moves = macroboard.available_moves
-    for px, py in moves:
-        macroboard.make_move(px, py)
-        if macroboard.has_a_winner:
-            wins += 1
-        macroboard.undo_last_move()
-    return wins
-
-
-@deepcopy_board
 def losing_moves(macroboard):
     moves = macroboard.available_moves
     losing = []
@@ -81,30 +69,37 @@ SCORE_FOR_SQUARE_IN_CENTRAL = 3
 SCORE_FOR_CENTRAL_IN_BOARD = 3
 
 
-def two_squares_in_a_row(microboard, on_turn):
+@deepcopy_board
+def number_of_winning_moves(macroboard, player):
+    wins = 0
+
+    return wins
+
+
+def two_squares_in_a_row(microboard, player):
     twos = 0
     for line in microboard.lines():
-        if line.count(on_turn) == 2 and line.count(Square.EMPTY) == 1:
+        if line.count(player) == 2 and line.count(Square.EMPTY) == 1:
             twos += 1
     return twos
 
 
-def two_boards_in_a_row(macroboard, on_turn):
+def two_boards_in_a_row(macroboard, player):
     twos = 0
-    state = player_to_state(on_turn)
+    state = player_to_state(player)
     for line in macroboard.state_lines():
         if line.count(state) == 2 and line.count(State.IN_PROGRESS) == 1:
             twos += 1
     return twos
 
 
-def squares_won(microboard, on_turn):
-    return sum(map(lambda line: line.count(on_turn), microboard.export_grid()))
+def squares_won(microboard, player):
+    return sum(map(lambda line: line.count(player), microboard.export_grid()))
 
 
-def score_microboard(microboard, i, j, on_turn):
+def score_microboard(microboard, i, j, player):
     score = 0
-    if microboard.winner == on_turn:
+    if microboard.winner == player:
         score += SCORE_FOR_WON_BOARD
         if (i, j) == CENTRAL:
             score += SCORE_FOR_WON_CENTRAL_BOARD
@@ -114,22 +109,21 @@ def score_microboard(microboard, i, j, on_turn):
     if microboard.state != State.IN_PROGRESS:
         return score
     if (i, j) == CENTRAL:
-        score += squares_won(microboard, on_turn) * SCORE_FOR_SQUARE_IN_CENTRAL
-    if microboard[CENTRAL[0]][CENTRAL[1]] == on_turn:
+        score += squares_won(microboard, player) * SCORE_FOR_SQUARE_IN_CENTRAL
+    if microboard.grid[CENTRAL[0]][CENTRAL[1]] == player:
         score += SCORE_FOR_CENTRAL_IN_BOARD
-    twos = two_squares_in_a_row(microboard, on_turn)
+    twos = two_squares_in_a_row(microboard, player)
     score += twos * SCORE_FOR_TWO_SQUARES_IN_A_ROW
     return score
 
 
-def score(macroboard):
+def score(macroboard, player):
     score = 0
-    on_turn = macroboard.get_on_turn()
     for i in range(macroboard.SIZE):
         for j in range(macroboard.SIZE):
-            score += score_microboard(macroboard[i][j], i, j, on_turn)
-            winning_moves = number_of_winning_moves(macroboard)
+            score += score_microboard(macroboard.boards[i][j], i, j, player)
+            winning_moves = number_of_winning_moves(macroboard, player)
             score += winning_moves * SCORE_FOR_WINNING_SQUARE
-    twos = two_boards_in_a_row(macroboard, on_turn)
+    twos = two_boards_in_a_row(macroboard, player)
     score += twos * SCORE_FOR_TWO_BOARDS_IN_A_ROW
     return score
