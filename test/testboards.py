@@ -83,6 +83,17 @@ class TestMacroboard(unittest.TestCase):
              (8, 7), (6, 0), (1, 0), (5, 0), (6, 2), (0, 7), (2, 4),
              (8, 8), (6, 7), (1, 3), (5, 2), (8, 0), (7, 0), (3, 0),
              (1, 1), (5, 3), (7, 2), (3, 6), (5, 5), (7, 1), (3, 5)]
+    DRAW_MOVES = [(8, 6), (8, 0), (7, 2), (4, 7), (3, 4), (2, 3), (6, 1),
+                  (2, 5), (6, 7), (1, 3), (5, 2),
+                  (6, 8), (1, 7), (4, 3), (4, 0), (3, 0), (2, 0),
+                  (7, 0), (5, 0), (6, 0), (1, 0), (3, 2), (1, 6),
+                  (4, 1), (5, 4), (6, 4), (0, 3), (1, 1), (5, 5),
+                  (7, 8), (5, 6), (4, 4), (3, 5), (2, 6), (2, 1),
+                  (8, 5), (7, 7), (4, 5), (5, 8), (7, 6), (3, 1),
+                  (1, 5), (4, 6), (5, 1), (6, 3), (1, 2), (5, 7),
+                  (7, 4), (0, 2), (2, 7), (8, 4), (6, 5), (0, 7),
+                  (0, 5), (2, 8), (8, 7), (7, 5), (6, 6), (0, 0),
+                  (0, 8), (0, 6), (4, 2), (7, 3), (8, 8), (8, 3)]
 
     def setUp(self):
         self.board = Macroboard()
@@ -90,6 +101,11 @@ class TestMacroboard(unittest.TestCase):
     def play_board(self, x_is_first=True):
         self.board = Macroboard(x_is_first)
         for move in self.MOVES:
+            self.board.make_move(*move)
+
+    def play_draw(self, x_is_first=True):
+        self.board = Macroboard(x_is_first)
+        for move in self.DRAW_MOVES:
             self.board.make_move(*move)
 
     def test_make_move(self):
@@ -184,7 +200,10 @@ class TestMacroboard(unittest.TestCase):
         self.assertEqual(self.board.state, State.X_WON)
         self.play_board(False)
         self.assertEqual(self.board.state, State.O_WON)
-        # TODO test draw
+        self.play_draw()
+        self.assertEqual(self.board.state, State.DRAW)
+        self.play_draw(False)
+        self.assertEqual(self.board.state, State.DRAW)
 
     def test_has_a_winner(self):
         self.assertFalse(self.board.has_a_winner)
@@ -192,7 +211,22 @@ class TestMacroboard(unittest.TestCase):
         self.assertTrue(self.board.has_a_winner)
         self.play_board(False)
         self.assertTrue(self.board.has_a_winner)
-        # TODO test draw
+        self.play_draw()
+        self.assertFalse(self.board.has_a_winner)
+        self.play_draw(False)
+        self.assertFalse(self.board.has_a_winner)
+
+    def test_turns(self):
+        on_turn = deepcopy(self.board._Macroboard__on_turn)
+        self.board.make_move(0, 0)
+        self.board.make_move(0, 1)
+        self.assertEqual(on_turn, self.board._Macroboard__on_turn)
+        self.board.make_move(1, 3)
+        self.assertNotEqual(on_turn, self.board._Macroboard__on_turn)
+        on_turn = deepcopy(self.board._Macroboard__on_turn)
+        self.board.make_move(4, 0)
+        self.board.make_move(5, 0)
+        self.assertEqual(on_turn, self.board._Macroboard__on_turn)
 
 
 if __name__ == '__main__':
