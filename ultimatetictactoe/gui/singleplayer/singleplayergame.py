@@ -1,8 +1,9 @@
 from ... import game
 from .botgame import BotGame
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QWidget, QGridLayout, QPushButton,
-                             QLabel, QLCDNumber, QFileDialog)
+from PyQt5.QtWidgets import (QWidget, QPushButton, QHBoxLayout,
+                             QLabel, QLCDNumber, QFileDialog, QVBoxLayout)
+from PyQt5.QtGui import QFont
 import time
 import pickle
 
@@ -17,35 +18,51 @@ class SinglePlayerGame(QWidget):
         self.opponentScore = 0
         self.playerIsNotFirst = False
 
-        self.playerScoreLcd = QLCDNumber(2)
-        self.playerScoreLcd.setSegmentStyle(QLCDNumber.Filled)
-        self.opponentScoreLcd = QLCDNumber(2)
-        self.opponentScoreLcd.setSegmentStyle(QLCDNumber.Filled)
-
         self.gamesCounter = QLabel()
         self.gamesCounter.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         self.updateGameCounter()
 
-        layout = QGridLayout()
-        layout.setColumnStretch(0, 1)
-        layout.setColumnStretch(1, 1)
-        self.scoreLabel = QLabel('Score: ')
+        mainLayout = QVBoxLayout()
 
         self.gameWidget = BotGame(self.getOpponent())
         self.gameWidget.gameEnded.connect(self.updateScoreAndReset)
-        self.saveButton = QPushButton('Save game')
+        self.saveButton = QPushButton('Save series')
         self.saveButton.clicked.connect(self.saveGame)
         self.message = self.createLabel('')
         self.message.hide()
-        layout.addWidget(self.createLabel('You'), 0, 0)
-        layout.addWidget(self.createLabel('Opponent'), 0, 1)
-        layout.addWidget(self.playerScoreLcd, 1, 0)
-        layout.addWidget(self.opponentScoreLcd, 1, 1)
-        layout.addWidget(self.gameWidget, 2, 0, 1, 2)
-        layout.addWidget(self.gamesCounter, 3, 0)
-        layout.addWidget(self.saveButton, 3, 1)
-        layout.addWidget(self.message, 4, 0, 1, 2)
-        self.setLayout(layout)
+        mainLayout.addLayout(self.createScoreLayout())
+        mainLayout.addWidget(self.gameWidget)
+        mainLayout.addWidget(self.message)
+        pack = self.packInHStretch([self.gamesCounter, self.saveButton])
+        mainLayout.addLayout(pack)
+        self.setLayout(mainLayout)
+
+    def createScoreLayout(self):
+        self.playerScoreLcd = QLCDNumber(2)
+        self.playerScoreLcd.setSegmentStyle(QLCDNumber.Filled)
+        self.playerScoreLcd.setMinimumSize(75, 50)
+        self.playerScoreLcd.display(0)
+        self.opponentScoreLcd = QLCDNumber(2)
+        self.opponentScoreLcd.setSegmentStyle(QLCDNumber.Filled)
+        self.opponentScoreLcd.setMinimumSize(75, 50)
+        self.opponentScoreLcd.display(0)
+        layout = QHBoxLayout()
+        layout.addStretch(1)
+        layout.addWidget(self.createLabel('You: '))
+        layout.addWidget(self.playerScoreLcd)
+        layout.addStretch(1)
+        layout.addWidget(self.createLabel('Opponent: '))
+        layout.addWidget(self.opponentScoreLcd)
+        layout.addStretch(1)
+        return layout
+
+    def packInHStretch(self, widgets):
+        layout = QHBoxLayout()
+        layout.addStretch(1)
+        for widget in widgets:
+            layout.addWidget(widget)
+            layout.addStretch(1)
+        return layout
 
     def displayMessage(self, message):
         self.message.setText(message)
@@ -99,7 +116,10 @@ class SinglePlayerGame(QWidget):
 
     def createLabel(self, text):
         lbl = QLabel(text)
-        lbl.setAlignment(Qt.AlignHCenter | Qt.AlignBottom)
+        lbl.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        font = QFont()
+        font.setPointSize(12)
+        lbl.setFont(font)
         return lbl
 
     def getOpponent(self):
