@@ -37,6 +37,9 @@ class BotBattle(QWidget):
         super(BotBattle, self).__init__()
         self.bot1 = bot1
         self.bot2 = bot2
+        self.score1 = 0
+        self.score2 = 0
+        self.starting = self.bot1
         self.on_turn = self.bot1
         self.board = game.boards.Macroboard()
         self.qBoard = QMacroBoard(self.buttonClick)
@@ -45,11 +48,12 @@ class BotBattle(QWidget):
 
         self.interrupted = False
 
-        button = self.createButton()
+        buttonLayout = self.createButton()
+        self.title = self.createTitle()
         layout = QVBoxLayout()
-        layout.addWidget(self.createTitle())
+        layout.addWidget(self.title)
         layout.addWidget(self.qBoard)
-        layout.addLayout(button)
+        layout.addLayout(buttonLayout)
         self.setLayout(layout)
 
     def botMove(self):
@@ -59,11 +63,21 @@ class BotBattle(QWidget):
 
     def makeBotMove(self, px, py):
         self.board.make_move(px, py)
-        self.on_turn = self.bot1 if self.on_turn == self.bot2 else self.bot2
         self.qBoard.updateBoard(self.board)
         if self.board.state != game.boards.State.IN_PROGRESS:
+            # update score
+            if self.on_turn == self.bot1:
+                self.score1 += 1
+            else:
+                self.score2 += 1
+            # change order
+            self.starting = self.bot1 if self.starting == self.bot2\
+                else self.bot2
+            self.on_turn = self.starting
+            self.updateTitle()
             self.startButton.show()
             return
+        self.on_turn = self.bot1 if self.on_turn == self.bot2 else self.bot2
         if not self.interrupted:
             self.botMove()
 
@@ -76,6 +90,11 @@ class BotBattle(QWidget):
         title.setFont(font)
         return title
 
+    def updateTitle(self):
+        title = (self.bot1.name + ': ' + str(self.score1) + ' vs ' +
+                 self.bot2.name + ': ' + str(self.score2))
+        self.title.setText(title)
+
     def createButton(self):
         self.startButton = QPushButton('Start')
         self.startButton.clicked.connect(self.start)
@@ -87,7 +106,7 @@ class BotBattle(QWidget):
 
     def start(self):
         self.startButton.hide()
-        self.board = game.boards.Macroboard()
+        self.board = game.boards.Macroboard(self.bot1 == self.starting)
         self.qBoard.updateBoard(self.board)
         self.botMove()
 

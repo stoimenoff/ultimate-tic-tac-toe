@@ -1,6 +1,6 @@
 from ...boards import GameEndedError
 from .. import Player
-from .heuristics import score
+from .heuristics import score  # , greedy_score
 import random
 from copy import deepcopy
 import math
@@ -17,6 +17,7 @@ class HeuristicsBot(Player):
         for px, py in moves:
             macroboard.make_move(px, py)
             move_score = - score(macroboard)
+            # move_score = - greedy_score(macroboard)
             if move_score > bestscore:
                 bestscore = move_score
                 bestmoves = [(px, py)]

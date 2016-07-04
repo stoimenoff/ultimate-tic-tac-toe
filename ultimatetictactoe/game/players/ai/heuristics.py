@@ -56,7 +56,7 @@ SCORE_FOR_TWO_SQUARES_IN_A_ROW = 2
 SCORE_FOR_TWO_BOARDS_IN_A_ROW = 4
 
 SCORE_FOR_SQUARE_IN_CENTRAL = 3
-SCORE_FOR_CENTRAL_IN_BOARD = 3
+SCORE_FOR_CENTRAL_IN_BOARD = 2  # 3
 
 SCORE_FOR_CAN_PLAY_ANYWHERE = 2
 
@@ -124,3 +124,17 @@ def score(macroboard):
     second_player_score = score_macroboard(macroboard, second_player)
     # print(first_player_score, second_player_score)
     return first_player_score - second_player_score
+
+
+def greedy_score(macroboard):
+    player = macroboard.get_on_turn()
+    other = Square.O if player == Square.X else Square.X
+    if macroboard.winner() == player:
+        return SCORE_FOR_WIN
+    score = 0
+    for (i, j) in macroboard.dead_boards:
+        if macroboard.boards[i][j].winner() == player:
+            score += SCORE_FOR_WON_BOARD
+        if macroboard.boards[i][j].winner() == other:
+            score -= SCORE_FOR_WON_BOARD
+    return score
