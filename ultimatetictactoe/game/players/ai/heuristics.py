@@ -111,7 +111,7 @@ def score_microboard(microboard, i, j, player):
 
 
 def score_macroboard(macroboard, player):
-    if macroboard.state == player_to_state(player):
+    if macroboard.winner == player:
         return SCORE_FOR_WIN
     score = 0
     for i in range(macroboard.SIZE):

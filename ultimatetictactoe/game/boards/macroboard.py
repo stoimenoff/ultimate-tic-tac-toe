@@ -114,6 +114,14 @@ class Macroboard:
         lines.extend(diagonals)
         return lines
 
+    def winner(self):
+        state = self.state
+        if state == State.X_WON:
+            return Square.X
+        if state == State.O_WON:
+            return Square.O
+        return None
+
     def __str__(self):
         str = '-' * (self.SIZE ** 2 + self.SIZE + 1) + '\n'
         for row in self.boards:
