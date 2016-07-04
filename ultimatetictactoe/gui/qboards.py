@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QGridLayout, QPushButton, QWidget,
-                             QStyleOption, QStyle)
+                             QStyleOption, QStyle, QHBoxLayout, QVBoxLayout)
 from PyQt5.QtGui import QPainter
 
 SQUARE_COLORS = {'X': 'blue', 'O': 'red', ' ': 'black'}
@@ -61,31 +61,42 @@ class QMacroBoard(QWidget):
         super(QMacroBoard, self).__init__()
         self.SIZE = SIZE
         self.onButtonClick = onButtonClick
-        grid = QGridLayout()
+        self.grid = QGridLayout()
         for i in range(SIZE):
             for j in range(SIZE):
-                grid.addWidget(QMicroBoard(i, j, self.onButtonClick,
-                               self.SIZE), i, j)
-        grid.setSpacing(0)
-        grid.setVerticalSpacing(0)
-        self.setLayout(grid)
+                self.grid.addWidget(QMicroBoard(i, j, self.onButtonClick,
+                                    self.SIZE), i, j)
+        self.grid.setSpacing(0)
+        self.grid.setVerticalSpacing(0)
+        self.setLayout(self.addHVStretch(self.grid))
+
+    def addHVStretch(self, layout):
+        horizontal = QHBoxLayout()
+        horizontal.addStretch(1)
+        horizontal.addLayout(layout)
+        horizontal.addStretch(1)
+        vertical = QVBoxLayout()
+        vertical.addStretch(1)
+        vertical.addLayout(horizontal)
+        vertical.addStretch(1)
+        return vertical
 
     def updateBoard(self, macroboard):
-        for i in range(self.layout().count()):
+        for i in range(self.grid.count()):
             microboard = macroboard.boards[i // self.SIZE][i % self.SIZE]
-            self.layout().itemAt(i).widget().lightDown()
-            self.layout().itemAt(i).widget().updateBoard(microboard)
+            self.grid.itemAt(i).widget().lightDown()
+            self.grid.itemAt(i).widget().updateBoard(microboard)
         for (i, j) in macroboard.available_boards:
-            self.layout().itemAt(i * self.SIZE + j).widget().lightUp()
+            self.grid.itemAt(i * self.SIZE + j).widget().lightUp()
         for (i, j) in macroboard.dead_boards:
             state = macroboard.boards[i][j].state
-            board = self.layout().itemAt(i * self.SIZE + j).widget()
+            board = self.grid.itemAt(i * self.SIZE + j).widget()
             board.changeBgColor(BOARD_COLORS[state.value])
         self.repaint()
 
     def setClickEnabled(self, enabled):
-        for i in range(self.layout().count()):
-            self.layout().itemAt(i).widget().setClickEnabled(enabled)
+        for i in range(self.grid.count()):
+            self.grid.itemAt(i).widget().setClickEnabled(enabled)
 
 
 SHEET = '''
