@@ -92,4 +92,5 @@ class SpectateBattle(QWidget):
         self.stack.setCurrentWidget(self.battle)
 
     def interruptBattle(self):
-        self.battle.interrupt()
+        if self.battle:
+            self.battle.interrupt()
