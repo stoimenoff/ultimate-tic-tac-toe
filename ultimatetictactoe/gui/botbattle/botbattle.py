@@ -43,6 +43,8 @@ class BotBattle(QWidget):
         self.qBoard.setClickEnabled(False)
         self.qBoard.updateBoard(self.board)
 
+        self.interrupted = False
+
         button = self.createButton()
         layout = QVBoxLayout()
         layout.addWidget(self.createTitle())
@@ -62,7 +64,8 @@ class BotBattle(QWidget):
         if self.board.state != game.boards.State.IN_PROGRESS:
             self.startButton.show()
             return
-        self.botMove()
+        if not self.interrupted:
+            self.botMove()
 
     def createTitle(self):
         title = QLabel(self.bot1.name + ' vs ' + self.bot2.name)
@@ -87,6 +90,9 @@ class BotBattle(QWidget):
         self.board = game.boards.Macroboard()
         self.qBoard.updateBoard(self.board)
         self.botMove()
+
+    def interrupt(self):
+        self.interrupted = True
 
     def buttonClick(self):
         return

@@ -71,6 +71,7 @@ class SpectateBattle(QWidget):
     def __init__(self):
         super(SpectateBattle, self).__init__()
         self.exitButton = QPushButton('Exit to menu')
+        self.exitButton.clicked.connect(self.interruptBattle)
         self.menu = BotBattleMenu()
         self.menu.startButton.clicked.connect(self.startBattle)
         self.battle = None
@@ -89,3 +90,6 @@ class SpectateBattle(QWidget):
         self.battle = BotBattle(bot1, bot2)
         self.stack.addWidget(self.battle)
         self.stack.setCurrentWidget(self.battle)
+
+    def interruptBattle(self):
+        self.battle.interrupt()
