@@ -27,7 +27,7 @@ DEPTH = 2
 class HeuristicsBot(Player):
     def choose_move(self, macroboard):
         print('calcmove')
-        bestmove = None
+        bestmoves = []
         bestscore = - math.inf
         macroboard = deepcopy(macroboard)
         if not macroboard.available_moves:
@@ -35,21 +35,24 @@ class HeuristicsBot(Player):
         moves = macroboard.available_moves
         depth = balance_depth(DEPTH, len(moves))
         for px, py in moves:
-            print('         checkmove')
+            # print('         checkmove')
             macroboard.make_move(px, py)
 
-            t1 = datetime.datetime.now()
-            # move_score = minimax(macroboard, 2, False)
+            # t1 = datetime.datetime.now()
+            # move_score = minimax(macroboard, depth, False)
             move_score = alphaBeta(macroboard, depth)
+            '''
             delta = datetime.datetime.now() - t1
             print('         ', delta.total_seconds())
-
             if (delta.total_seconds() > 1):
                 print(macroboard)
                 print(depth)
             print('         checked')
+            '''
             if move_score > bestscore:
                 bestscore = move_score
-                bestmove = (px, py)
+                bestmoves = [(px, py)]
+            if move_score == bestscore:
+                bestmoves.append((px, py))
             macroboard.undo_last_move()
-        return bestmove
+        return random.choice(bestmoves)

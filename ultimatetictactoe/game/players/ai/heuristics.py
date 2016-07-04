@@ -37,16 +37,6 @@ def not_losing_moves(macroboard):
     return [move for move in moves if move not in losing]
 
 
-def boards_player_on_turn_won(macroboard):
-    won = []
-    on_turn = macroboard.get_on_turn()
-    for i in range(macroboard.SIZE):
-        for j in range(macroboard.SIZE):
-            if macroboard.boards[i][j].winner == on_turn:
-                won.append((i, j))
-    return won
-
-
 def player_to_state(player):
     if player == Square.X:
         return State.X_WON

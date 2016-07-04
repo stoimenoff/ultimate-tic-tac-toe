@@ -1,14 +1,16 @@
 from .heuristicsbot import HeuristicsBot
+from .randombot import RandomBot
+from .gentlemanbot import GentlemanBot
 
 
 def select_bot(difficulty):
     if difficulty == 1:
-        return HeuristicsBot('Euristics bot')
+        return GentlemanBot('Gentle bot')
     elif difficulty == 2:
-        return HeuristicsBot('Euristics bot')
+        return RandomBot('Random bot')
     elif difficulty == 3:
-        return HeuristicsBot('Euristics bot')
+        return HeuristicsBot('Heuristics bot')
     elif difficulty == 4:
-        return HeuristicsBot('Euristics bot')
+        return HeuristicsBot('Heuristics bot')
     else:
         raise ValueError('No such difficulty.')
