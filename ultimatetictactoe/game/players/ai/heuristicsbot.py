@@ -32,12 +32,12 @@ class HeuristicsBot(Player):
         if not macroboard.available_moves:
             raise GameEndedError
         moves = macroboard.available_moves
+        depth = balance_depth(DEPTH, len(moves))
         for px, py in moves:
             # print('         checkmove')
             macroboard.make_move(px, py)
             # move_score = minimax(macroboard, 2, False)
-            move_score = alphaBeta(macroboard,
-                                   balance_depth(DEPTH, len(moves)))
+            move_score = alphaBeta(macroboard, depth)
             if move_score > bestscore:
                 bestscore = move_score
                 bestmove = (px, py)

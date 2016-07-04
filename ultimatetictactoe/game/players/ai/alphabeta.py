@@ -3,12 +3,22 @@ from .heuristics import score, SCORE_FOR_WIN
 from copy import deepcopy
 
 
+DEPTH_BALANCE = {(0, 5): 1,
+                 (5, 10): 0,
+                 (10, 20): -1,
+                 (20, 30): -1,
+                 (30, 40): -2,
+                 (40, 50): -2,
+                 (50, 60): -2,
+                 (60, 70): -2,
+                 (70, 82): -2}
+
+
 def balance_depth(depth, number_of_moves):
     new_depth = depth
-    if number_of_moves > 9:
-        new_depth -= 1
-    if number_of_moves < 5:
-        new_depth += 1
+    for (low, high), balance in DEPTH_BALANCE.items():
+        if low <= number_of_moves < high:
+            new_depth += balance
     return new_depth
 
 
