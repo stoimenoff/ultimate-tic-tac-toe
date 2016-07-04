@@ -3,7 +3,9 @@ from .heuristics import score, SCORE_FOR_WIN
 from copy import deepcopy
 
 
-DEPTH_BALANCE = {(0, 5): 1,
+DEPTH_BALANCE = {(1, 2): 2,
+                 (2, 4): 1,
+                 (4, 5): 0,
                  (5, 10): 0,
                  (10, 20): -1,
                  (20, 30): -1,
