@@ -55,6 +55,14 @@ class Macroboard:
             return [(x, y)]
         return self.active_boards
 
+    def can_play_on_all_active(self):
+        if self.last_move is None:
+            return True
+        x, y = self.last_move[-2:]
+        if self.boards[x][y].state != State.IN_PROGRESS:
+            return True
+        return False
+
     @property
     def available_moves(self):
         moves = []

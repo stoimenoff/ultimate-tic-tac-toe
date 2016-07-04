@@ -30,4 +30,4 @@ def n_games_result(n):
 
 
 if __name__ == '__main__':
-    print(n_games_result(100))
+    print(n_games_result(3))

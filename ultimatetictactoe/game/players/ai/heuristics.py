@@ -68,6 +68,8 @@ SCORE_FOR_TWO_BOARDS_IN_A_ROW = 4
 SCORE_FOR_SQUARE_IN_CENTRAL = 3
 SCORE_FOR_CENTRAL_IN_BOARD = 3
 
+SCORE_FOR_CAN_PLAY_ANYWHERE = 2
+
 
 def two_squares_in_a_row(microboard, player):
     twos = 0
@@ -119,6 +121,9 @@ def score_macroboard(macroboard, player):
             score += score_microboard(macroboard.boards[i][j], i, j, player)
     twos = two_boards_in_a_row(macroboard, player)
     score += twos * SCORE_FOR_TWO_BOARDS_IN_A_ROW
+    if player == macroboard.get_on_turn():
+        if macroboard.can_play_on_all_active():
+            score += SCORE_FOR_CAN_PLAY_ANYWHERE
     return score
 
 
