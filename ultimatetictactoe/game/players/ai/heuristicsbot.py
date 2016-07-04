@@ -32,8 +32,8 @@ class HeuristicsBot(Player):
         for px, py in moves:
             print('         checkmove')
             macroboard.make_move(px, py)
-            # move_score = - minimax(macroboard, 1)
-            move_score = - alphaBeta(macroboard, 3)
+            # move_score = minimax(macroboard, 2, False)
+            move_score = alphaBeta(macroboard, 2)
             if move_score > bestscore:
                 bestscore = move_score
                 bestmove = (px, py)

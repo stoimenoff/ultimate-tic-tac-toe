@@ -94,7 +94,7 @@ def squares_won(microboard, player):
 
 def score_microboard(microboard, i, j, player):
     score = 0
-    if microboard.winner == player:
+    if microboard.winner() == player:
         score += SCORE_FOR_WON_BOARD
         if (i, j) == CENTRAL:
             score += SCORE_FOR_WON_CENTRAL_BOARD
@@ -113,7 +113,7 @@ def score_microboard(microboard, i, j, player):
 
 
 def score_macroboard(macroboard, player):
-    if macroboard.winner == player:
+    if macroboard.winner() == player:
         return SCORE_FOR_WIN
     score = 0
     for i in range(macroboard.SIZE):
