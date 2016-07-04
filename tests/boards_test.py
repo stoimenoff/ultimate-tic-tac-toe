@@ -73,6 +73,31 @@ class TestMicroboard(unittest.TestCase):
         self.assertEqual(grid, self.board.grid)
         self.assertEqual(move, self.board.last_move)
 
+    def test_lines(self):
+        EMPTY_LINES = [[Square.EMPTY, Square.EMPTY, Square.EMPTY],
+                       [Square.EMPTY, Square.EMPTY, Square.EMPTY],
+                       [Square.EMPTY, Square.EMPTY, Square.EMPTY],
+                       [Square.EMPTY, Square.EMPTY, Square.EMPTY],
+                       [Square.EMPTY, Square.EMPTY, Square.EMPTY],
+                       [Square.EMPTY, Square.EMPTY, Square.EMPTY],
+                       [Square.EMPTY, Square.EMPTY, Square.EMPTY],
+                       [Square.EMPTY, Square.EMPTY, Square.EMPTY]]
+        self.assertEqual(self.board.lines(), EMPTY_LINES)
+        LINES = [[Square.X, Square.O, Square.EMPTY],
+                 [Square.X, Square.O, Square.EMPTY],
+                 [Square.EMPTY, Square.EMPTY, Square.X],
+                 [Square.X, Square.X, Square.EMPTY],
+                 [Square.O, Square.O, Square.EMPTY],
+                 [Square.EMPTY, Square.EMPTY, Square.X],
+                 [Square.X, Square.O, Square.X],
+                 [Square.EMPTY, Square.O, Square.EMPTY]]
+        self.board.set_square(0, 0, Square.X)
+        self.board.set_square(0, 1, Square.O)
+        self.board.set_square(1, 0, Square.X)
+        self.board.set_square(1, 1, Square.O)
+        self.board.set_square(2, 2, Square.X)
+        self.assertEqual(self.board.lines(), LINES)
+
 
 class TestMacroboard(unittest.TestCase):
     MOVES = [(2, 2), (7, 6), (3, 2), (1, 7), (3, 4), (2, 5),
@@ -217,16 +242,36 @@ class TestMacroboard(unittest.TestCase):
         self.assertFalse(self.board.has_a_winner)
 
     def test_turns(self):
-        on_turn = deepcopy(self.board._Macroboard__on_turn)
+        on_turn = deepcopy(self.board.get_on_turn())
         self.board.make_move(0, 0)
         self.board.make_move(0, 1)
-        self.assertEqual(on_turn, self.board._Macroboard__on_turn)
+        self.assertEqual(on_turn, self.board.get_on_turn())
         self.board.make_move(1, 3)
-        self.assertNotEqual(on_turn, self.board._Macroboard__on_turn)
-        on_turn = deepcopy(self.board._Macroboard__on_turn)
+        self.assertNotEqual(on_turn, self.board.get_on_turn())
+        on_turn = deepcopy(self.board.get_on_turn())
         self.board.make_move(4, 0)
         self.board.make_move(5, 0)
-        self.assertEqual(on_turn, self.board._Macroboard__on_turn)
+        self.assertEqual(on_turn, self.board.get_on_turn())
+
+    def test_winner(self):
+        self.assertIsNone(self.board.winner())
+        self.play_draw()
+        self.assertIsNone(self.board.winner())
+        self.play_board()
+        self.assertIsNotNone(self.board.winner())
+        self.assertEqual(self.board.winner(), Square.X)
+
+    def test_state_lines(self):
+        STATE_LINES = [[State.X_WON, State.IN_PROGRESS, State.O_WON],
+                       [State.IN_PROGRESS, State.X_WON, State.IN_PROGRESS],
+                       [State.O_WON, State.O_WON, State.X_WON],
+                       [State.X_WON, State.IN_PROGRESS, State.O_WON],
+                       [State.IN_PROGRESS, State.X_WON, State.O_WON],
+                       [State.O_WON, State.IN_PROGRESS, State.X_WON],
+                       [State.X_WON, State.X_WON, State.X_WON],
+                       [State.O_WON, State.X_WON, State.O_WON]]
+        self.play_board()
+        self.assertEqual(self.board.state_lines(), STATE_LINES)
 
 
 if __name__ == '__main__':

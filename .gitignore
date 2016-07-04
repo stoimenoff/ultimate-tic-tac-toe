@@ -4,6 +4,7 @@ __pycache__/*
 *.swp
 *.swo
 ultimate_tic_tac_toe.egg-info
+.eggs
 
 #coverage
 .coverage

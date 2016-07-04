@@ -115,7 +115,7 @@ class Macroboard:
 
     def state_lines(self):
         lines = [[board.state for board in row] for row in self.boards]
-        columns = zip(*lines)
+        columns = [list(column) for column in zip(*lines)]
         diagonals = [[lines[i][i] for i in range(self.SIZE)],
                      [lines[i][self.SIZE - i - 1] for i in range(self.SIZE)]]
         lines.extend(columns)

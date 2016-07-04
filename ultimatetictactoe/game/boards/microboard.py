@@ -63,10 +63,10 @@ class Microboard:
 
     def lines(self):
         lines = deepcopy(self.grid)
-        columns = zip(*lines)
-        lines.extend(columns)
+        columns = [list(column) for column in zip(*lines)]
         diagonals = [[lines[i][i] for i in range(self.SIZE)],
                      [lines[i][self.SIZE - i - 1] for i in
                      range(self.SIZE)]]
+        lines.extend(columns)
         lines.extend(diagonals)
         return lines
