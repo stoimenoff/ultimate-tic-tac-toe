@@ -1,9 +1,10 @@
 from .. import Player
-from .heuristics import winning_move, not_losing_moves, score
-from ...boards import GameEndedError, Square
+from .heuristics import winning_move, not_losing_moves
+from ...boards import GameEndedError
 import random
 from copy import deepcopy
 import math
+from .minimax import minimax
 
 
 class EuristicsBot(Player):
@@ -20,8 +21,7 @@ class EuristicsBot(Player):
 
 class HeuristicsBot(Player):
     def choose_move(self, macroboard):
-        me = macroboard.get_on_turn()
-        opponent = Square.X if me == Square.O else Square.O
+        print('calcmove')
         bestmove = None
         bestscore = - math.inf
         macroboard = deepcopy(macroboard)
@@ -29,11 +29,11 @@ class HeuristicsBot(Player):
             raise GameEndedError
         moves = macroboard.available_moves
         for px, py in moves:
+            # print('         checkmove')
             macroboard.make_move(px, py)
-            my_score = score(macroboard, me)
-            opponent_score = score(macroboard, opponent)
-            if my_score - opponent_score > bestscore:
-                bestscore = my_score - opponent_score
+            move_score = - minimax(macroboard, 1)
+            if move_score > bestscore:
+                bestscore = move_score
                 bestmove = (px, py)
             macroboard.undo_last_move()
         return bestmove

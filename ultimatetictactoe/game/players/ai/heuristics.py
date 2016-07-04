@@ -57,7 +57,7 @@ def player_to_state(player):
 CENTRAL = (1, 1)
 CORNERS = [(0, 0), (0, 2), (2, 0), (2, 2)]
 
-SCORE_FOR_WINNING_SQUARE = 10000
+SCORE_FOR_WIN = 10000
 SCORE_FOR_WON_BOARD = 5
 SCORE_FOR_WON_CENTRAL_BOARD = 10
 SCORE_FOR_WON_CORNER_BOARD = 3
@@ -67,13 +67,6 @@ SCORE_FOR_TWO_BOARDS_IN_A_ROW = 4
 
 SCORE_FOR_SQUARE_IN_CENTRAL = 3
 SCORE_FOR_CENTRAL_IN_BOARD = 3
-
-
-@deepcopy_board
-def number_of_winning_moves(macroboard, player):
-    wins = 0
-
-    return wins
 
 
 def two_squares_in_a_row(microboard, player):
@@ -117,13 +110,22 @@ def score_microboard(microboard, i, j, player):
     return score
 
 
-def score(macroboard, player):
+def score_macroboard(macroboard, player):
+    if macroboard.state == player_to_state(player):
+        return SCORE_FOR_WIN
     score = 0
     for i in range(macroboard.SIZE):
         for j in range(macroboard.SIZE):
             score += score_microboard(macroboard.boards[i][j], i, j, player)
-            winning_moves = number_of_winning_moves(macroboard, player)
-            score += winning_moves * SCORE_FOR_WINNING_SQUARE
     twos = two_boards_in_a_row(macroboard, player)
     score += twos * SCORE_FOR_TWO_BOARDS_IN_A_ROW
     return score
+
+
+def score(macroboard):
+    first_player = macroboard.get_on_turn()
+    second_player = Square.O if first_player == Square.X else Square.X
+    first_player_score = score_macroboard(macroboard, first_player)
+    second_player_score = score_macroboard(macroboard, second_player)
+    # print(first_player_score, second_player_score)
+    return first_player_score - second_player_score
