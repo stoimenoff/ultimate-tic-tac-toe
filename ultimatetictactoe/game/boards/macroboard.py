@@ -108,6 +108,7 @@ class Macroboard:
             self.last_move = self.history[-2]
         else:
             self.last_move = None
+        self.__on_turn = Square.X if self.__on_turn == Square.O else Square.O
         del self.history[-1]
 
     def get_on_turn(self):

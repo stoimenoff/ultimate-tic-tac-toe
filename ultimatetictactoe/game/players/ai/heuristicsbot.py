@@ -6,6 +6,7 @@ from copy import deepcopy
 import math
 # from .minimax import minimax
 from .alphabeta import alphaBeta, balance_depth
+import datetime
 
 
 class EuristicsBot(Player):
@@ -20,7 +21,7 @@ class EuristicsBot(Player):
         return random.choice(macroboard.available_moves)
 
 
-DEPTH = 3
+DEPTH = 2
 
 
 class HeuristicsBot(Player):
@@ -34,10 +35,19 @@ class HeuristicsBot(Player):
         moves = macroboard.available_moves
         depth = balance_depth(DEPTH, len(moves))
         for px, py in moves:
-            # print('         checkmove')
+            print('         checkmove')
             macroboard.make_move(px, py)
+
+            t1 = datetime.datetime.now()
             # move_score = minimax(macroboard, 2, False)
             move_score = alphaBeta(macroboard, depth)
+            delta = datetime.datetime.now() - t1
+            print('         ', delta.total_seconds())
+
+            if (delta.total_seconds() > 1):
+                print(macroboard)
+                print(depth)
+            print('         checked')
             if move_score > bestscore:
                 bestscore = move_score
                 bestmove = (px, py)

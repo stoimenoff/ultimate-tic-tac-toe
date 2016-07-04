@@ -252,6 +252,10 @@ class TestMacroboard(unittest.TestCase):
         self.board.make_move(4, 0)
         self.board.make_move(5, 0)
         self.assertEqual(on_turn, self.board.get_on_turn())
+        self.board.undo_last_move()
+        self.assertNotEqual(on_turn, self.board.get_on_turn())
+        self.board.make_move(5, 0)
+        self.assertEqual(on_turn, self.board.get_on_turn())
 
     def test_winner(self):
         self.assertIsNone(self.board.winner())
