@@ -1,6 +1,6 @@
 from ultimatetictactoe import game
 from collections import Counter
-# import datetime
+import datetime
 
 
 def one_game_result():
@@ -11,12 +11,12 @@ def one_game_result():
     board = game.boards.Macroboard()
     while board.state == game.boards.State.IN_PROGRESS:
         # print('move')
-        # t1 = datetime.datetime.now()
+        t1 = datetime.datetime.now()
         move = on_turn.choose_move(board)
         board.make_move(*move)
         on_turn = bot1 if on_turn == bot2 else bot2
-        # delta = datetime.datetime.now() - t1
-        # print(delta.total_seconds())
+        delta = datetime.datetime.now() - t1
+        print(delta.total_seconds())
     return board.state
 
 

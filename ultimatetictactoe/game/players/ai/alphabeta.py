@@ -3,10 +3,12 @@ from .heuristics import score, SCORE_FOR_WIN
 from copy import deepcopy
 
 
-def reduce_depth(depth, number_of_moves):
+def balance_depth(depth, number_of_moves):
     new_depth = depth
     if number_of_moves > 9:
         new_depth -= 1
+    if number_of_moves < 5:
+        new_depth += 1
     return new_depth
 
 
@@ -19,9 +21,9 @@ def alphaBeta(macroboard, depth):
 def alphaBetaMax(macroboard, alpha, beta, depth):
     if macroboard.state != State.IN_PROGRESS or depth <= 0:
         return score(macroboard)
-    moves = macroboard.available_moves
-    # depth = reduce_depth(depth, len(moves))
     best_score = - SCORE_FOR_WIN
+    moves = macroboard.available_moves
+    depth = balance_depth(depth, len(moves))
     for px, py in moves:
         child = deepcopy(macroboard)
         child.make_move(px, py)
@@ -37,7 +39,7 @@ def alphaBetaMin(macroboard, alpha, beta, depth):
     if macroboard.state != State.IN_PROGRESS or depth <= 0:
         return - score(macroboard)
     moves = macroboard.available_moves
-    # depth = reduce_depth(depth, len(moves))
+    depth = balance_depth(depth, len(moves))
     best_score = SCORE_FOR_WIN
     for px, py in moves:
         child = deepcopy(macroboard)

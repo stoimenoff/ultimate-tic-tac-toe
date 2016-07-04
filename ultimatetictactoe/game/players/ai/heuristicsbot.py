@@ -5,7 +5,7 @@ import random
 from copy import deepcopy
 import math
 # from .minimax import minimax
-from .alphabeta import alphaBeta
+from .alphabeta import alphaBeta, balance_depth
 
 
 class EuristicsBot(Player):
@@ -20,6 +20,9 @@ class EuristicsBot(Player):
         return random.choice(macroboard.available_moves)
 
 
+DEPTH = 3
+
+
 class HeuristicsBot(Player):
     def choose_move(self, macroboard):
         print('calcmove')
@@ -30,10 +33,11 @@ class HeuristicsBot(Player):
             raise GameEndedError
         moves = macroboard.available_moves
         for px, py in moves:
-            print('         checkmove')
+            # print('         checkmove')
             macroboard.make_move(px, py)
             # move_score = minimax(macroboard, 2, False)
-            move_score = alphaBeta(macroboard, 2)
+            move_score = alphaBeta(macroboard,
+                                   balance_depth(DEPTH, len(moves)))
             if move_score > bestscore:
                 bestscore = move_score
                 bestmove = (px, py)
