@@ -4,6 +4,9 @@ import random
 
 
 class RandomBot(Player):
+    """
+    Bot player. Calculates his move randomly.
+    """
     def choose_move(self, macroboard):
         if not macroboard.available_moves:
             raise GameEndedError

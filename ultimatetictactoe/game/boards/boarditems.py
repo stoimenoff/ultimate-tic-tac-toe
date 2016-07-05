@@ -2,6 +2,9 @@ from enum import Enum
 
 
 class State(Enum):
+    """
+    Represents a board state.
+    """
     X_WON = 'X'
     O_WON = 'O'
     DRAW = '-'
@@ -9,6 +12,9 @@ class State(Enum):
 
 
 class Square(Enum):
+    """
+    Represents a board square.
+    """
     EMPTY = ' '
     X = 'X'
     O = 'O'

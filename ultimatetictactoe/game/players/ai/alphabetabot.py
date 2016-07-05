@@ -11,6 +11,10 @@ DEPTH = 2
 
 
 class AlphaBetaBot(Player):
+    """
+    Bot player. Uses minimax search with alpha-beta pruning
+    with depth balancing to calculate the best move.
+    """
     def choose_move(self, macroboard):
         print('calcmove')
         bestmoves = []

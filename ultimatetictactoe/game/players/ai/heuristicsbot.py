@@ -7,6 +7,10 @@ import math
 
 
 class HeuristicsBot(Player):
+    """
+    Bot player. Calculates his move only based on the heuristics' scores
+    for the possible moves.
+    """
     def choose_move(self, macroboard):
         bestmoves = []
         bestscore = - math.inf

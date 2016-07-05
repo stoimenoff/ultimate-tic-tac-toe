@@ -9,6 +9,10 @@ DEPTH = 2
 
 
 class GentlemanBot(Player):
+    """
+    Bot player. Uses minimax search with alpha-beta pruning
+    with depth balancing to calculate the worst move.
+    """
     def choose_move(self, macroboard):
         worstmoves = []
         macroboard = deepcopy(macroboard)

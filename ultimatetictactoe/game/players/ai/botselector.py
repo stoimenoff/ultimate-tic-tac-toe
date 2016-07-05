@@ -5,6 +5,9 @@ from .gentlemanbot import GentlemanBot
 
 
 def select_bot(difficulty):
+    """
+    Maps the dificulties 1 to 4 to different bot players.
+    """
     if difficulty == 1:
         return GentlemanBot('Gentleman bot')
     elif difficulty == 2:

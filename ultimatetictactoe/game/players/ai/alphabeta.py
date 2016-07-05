@@ -17,6 +17,10 @@ DEPTH_BALANCE = {(1, 2): 2,
 
 
 def balance_depth(depth, number_of_moves):
+    """
+    Balance the depth of a search on the game moves tree based on
+    the number of possible moves.
+    """
     new_depth = depth
     for (low, high), balance in DEPTH_BALANCE.items():
         if low <= number_of_moves < high:
@@ -25,6 +29,9 @@ def balance_depth(depth, number_of_moves):
 
 
 def alphaBeta(macroboard, depth):
+    """
+    Perform a minimax search with alpha-beta pruning on the game tree.
+    """
     alpha = - SCORE_FOR_WIN
     beta = SCORE_FOR_WIN
     return alphaBetaMin(macroboard, alpha, beta, depth)
