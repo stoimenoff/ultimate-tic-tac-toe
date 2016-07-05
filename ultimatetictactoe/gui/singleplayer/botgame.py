@@ -14,14 +14,14 @@ class WaitForMove(QThread):
         self.board = board
 
     def run(self):
-        print('Waiting for move')
+        # print('Waiting for move')
         try:
             move = self.player.choose_move(self.board)
         except Exception as e:
             print('error ', e)
             self.error.emit(e)
             return
-        print('Move')
+        # print('Move')
         self.done.emit(*move)
 
 
