@@ -39,6 +39,7 @@ class BotBattle(QWidget):
         self.bot2 = bot2
         self.score1 = 0
         self.score2 = 0
+        self.draw = 0
         self.starting = self.bot1
         self.on_turn = self.bot1
         self.board = game.boards.Macroboard()
@@ -66,10 +67,13 @@ class BotBattle(QWidget):
         self.qBoard.updateBoard(self.board)
         if self.board.state != game.boards.State.IN_PROGRESS:
             # update score
-            if self.on_turn == self.bot1:
-                self.score1 += 1
+            if self.board.has_a_winner:
+                if self.on_turn == self.bot1:
+                    self.score1 += 1
+                else:
+                    self.score2 += 1
             else:
-                self.score2 += 1
+                self.draw += 1
             # change order
             self.starting = self.bot1 if self.starting == self.bot2\
                 else self.bot2
@@ -93,6 +97,8 @@ class BotBattle(QWidget):
     def updateTitle(self):
         title = (self.bot1.name + ': ' + str(self.score1) + ' vs ' +
                  self.bot2.name + ': ' + str(self.score2))
+        if self.draw > 0:
+            title += (' Draw: ' + str(self.draw))
         self.title.setText(title)
 
     def createButton(self):
