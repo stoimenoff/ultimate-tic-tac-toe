@@ -9,7 +9,7 @@ import pickle
 
 
 class SinglePlayerGame(QWidget):
-    def __init__(self, difficulty=0, numberOfGames=1):
+    def __init__(self, difficulty=1, numberOfGames=1):
         super(SinglePlayerGame, self).__init__()
         self.difficulty = difficulty
         self.numberOfGames = numberOfGames
