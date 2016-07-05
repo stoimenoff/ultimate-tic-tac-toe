@@ -82,8 +82,11 @@ class SinglePlayer(QWidget):
         filename = QFileDialog().getOpenFileName(self, 'Load game')
         if not filename[0]:
             return
-        with open(filename[0], 'rb') as handle:
-            config = pickle.load(handle)
+        try:
+            with open(filename[0], 'rb') as handle:
+                config = pickle.load(handle)
+        except pickle.UnpicklingError:
+            return
         self.game = SinglePlayerGame()
         self.game.loadConfiguration(config)
         self.showGame()
