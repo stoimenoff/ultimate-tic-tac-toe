@@ -85,6 +85,20 @@ class TestSinglePlayer(unittest.TestCase):
         self.assertEqual(self.game.game.opponentScore, 0)
         self.assertEqual(self.game.game.playerIsNotFirst, True)
 
+    @patch('PyQt5.QtWidgets.QFileDialog.getOpenFileName')
+    def testLoadInvalidGame(self, openfile):
+        file = tempfile.NamedTemporaryFile()
+        with open(file.name, 'wb') as f:
+            pickle.dump('some fake stuff', f)
+        openfile.return_value = (file.name, '')
+        self.game.loadGame()
+        self.assertEqual(self.game.game.difficulty, 1)
+        self.assertEqual(self.game.game.numberOfGames, 1)
+        self.assertEqual(self.game.game.gamesPlayed, 0)
+        self.assertEqual(self.game.game.playerScore, 0)
+        self.assertEqual(self.game.game.opponentScore, 0)
+        self.assertEqual(self.game.game.playerIsNotFirst, False)
+
 
 class TestSinglePlayerGame(unittest.TestCase):
     def setUp(self):

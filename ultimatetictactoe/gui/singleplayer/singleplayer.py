@@ -85,10 +85,13 @@ class SinglePlayer(QWidget):
         try:
             with open(filename[0], 'rb') as handle:
                 config = pickle.load(handle)
-        except pickle.UnpicklingError:
+        except (pickle.UnpicklingError, FileNotFoundError, EOFError):
             return
         self.game = SinglePlayerGame()
-        self.game.loadConfiguration(config)
+        try:
+            self.game.loadConfiguration(config)
+        except ValueError:
+            return
         self.showGame()
 
     def showGame(self):

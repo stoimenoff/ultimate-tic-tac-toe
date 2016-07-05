@@ -148,7 +148,30 @@ class SinglePlayerGame(QWidget):
                 self.playerIsNotFirst,
                 self.gameWidget.board)
 
+    def validateConfig(self, config):
+        if not isinstance(config, tuple):
+            return False
+        if len(config) != 7:
+            return False
+        if not isinstance(config[0], int) or config[0] not in range(1, 5):
+            return False
+        if not isinstance(config[1], int) or config[1] < 1:
+            return False
+        if not isinstance(config[2], int) or config[2] > config[1]:
+            return False
+        if not isinstance(config[3], int) or config[3] < 0:
+            return False
+        if not isinstance(config[4], int) or config[4] < 0:
+            return False
+        if not isinstance(config[5], bool):
+            return False
+        if not isinstance(config[6], game.boards.Macroboard):
+            return False
+        return True
+
     def loadConfiguration(self, config):
+        if not self.validateConfig(config):
+            raise ValueError('Invalid configuration')
         self.difficulty = config[0]
         self.numberOfGames = config[1]
         self.gamesPlayed = config[2]
