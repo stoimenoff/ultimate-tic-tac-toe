@@ -22,7 +22,7 @@ class WaitForRequest(QThread):
             self.waitingRequest.emit()
             try:
                 self.parent.server.listen(self.onMoveRequest)
-            except Exception as e:
+            except OSError as e:
                 print('error ', e)
                 self.error.emit(e)
                 return
@@ -117,6 +117,7 @@ class ServerGame(QWidget):
 
     def serverError(self, err):
         print('Server error:', err)
+        self.displayMessage('Server err: ' + str(err))
 
     def displayMessage(self, msg):
         self.statusBar.setText(msg)
@@ -138,3 +139,6 @@ class ServerGame(QWidget):
         elif result == game.boards.State.DRAW:
             message = 'The game ended in a draw!'
         self.displayMessage(message)
+
+    def end(self):
+        self.requestThread.quit()

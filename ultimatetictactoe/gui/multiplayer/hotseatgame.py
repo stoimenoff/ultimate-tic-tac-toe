@@ -35,3 +35,6 @@ class HotSeatGame(QWidget):
     def loadBoard(self, board):
         self.board = board
         self.qBoard.updateBoard(self.board)
+
+    def end(self):
+        pass

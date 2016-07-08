@@ -59,6 +59,10 @@ class MainGame(QWidget):
         self.setWindowTitle('Ultimate tic-tac-toe')
         self.resize(400, 200)
 
+        self.singlePlayer = None
+        self.multiPlayer = None
+        self.spectate = None
+
         self.showMenu()
 
     def showMenu(self):
@@ -71,9 +75,10 @@ class MainGame(QWidget):
         self.stack.setCurrentWidget(self.singlePlayer)
 
     def startMultiPlayer(self):
-        self.multiPlayer = MultiPlayer()
-        self.multiPlayer.exitButton.clicked.connect(self.showMenu)
-        self.stack.addWidget(self.multiPlayer)
+        if not self.multiPlayer:
+            self.multiPlayer = MultiPlayer()
+            self.multiPlayer.exitButton.clicked.connect(self.showMenu)
+            self.stack.addWidget(self.multiPlayer)
         self.stack.setCurrentWidget(self.multiPlayer)
 
     def startSpectateBattle(self):

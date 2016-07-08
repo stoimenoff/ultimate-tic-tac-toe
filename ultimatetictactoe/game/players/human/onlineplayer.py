@@ -6,6 +6,7 @@ BYTES_LENGTH = 4096
 DEFAULT_HOST = '127.0.0.1'
 DEFAULT_CONNECT = 'localhost'
 DEFAULT_PORT = 5007
+DEFAULT_TIMEOUT = 1
 
 
 class RemotePlayer(Player):
@@ -18,6 +19,7 @@ class RemotePlayer(Player):
 
     def choose_move(self, macroboard):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(DEFAULT_TIMEOUT)
             s.connect((self.host, self.port))
             s.sendall(self.get_data(macroboard))
             data = s.recv(BYTES_LENGTH)
@@ -46,6 +48,7 @@ class ServerPlayer(Player):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind((self.host, self.port))
+            s.settimeout(DEFAULT_TIMEOUT)
             s.listen(1)
             connection, address = s.accept()
             if self.opponent is not None and self.opponent != address[0]:

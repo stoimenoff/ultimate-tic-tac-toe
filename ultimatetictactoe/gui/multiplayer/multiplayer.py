@@ -107,6 +107,7 @@ class MultiPlayer(QWidget):
     def __init__(self):
         super(MultiPlayer, self).__init__()
         self.exitButton = QPushButton('Exit to menu')
+        self.exitButton.clicked.connect(self.stopAll)
         self.game = None
         self.menu = MultiPlayerMenu()
         self.menu.connectButton.clicked.connect(self.connect)
@@ -142,3 +143,7 @@ class MultiPlayer(QWidget):
     def showGame(self):
         self.stack.addWidget(self.game)
         self.stack.setCurrentWidget(self.game)
+
+    def stopAll(self):
+        self.stack.setCurrentWidget(self.menu)
+        self.game.end()

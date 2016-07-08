@@ -25,6 +25,7 @@ class ClientGame(QWidget):
         self.opponent = game.players.human.RemotePlayer(name, host, port)
         self.opponentConnected = False
         self.board = game.boards.Macroboard()
+        self.moveCalculation = None
 
     def setServerAddress(self, host, port):
         self.opponent.set_target(host, port)
@@ -83,7 +84,12 @@ class ClientGame(QWidget):
 
     def serverError(self, err):
         print('Server error:', err)
+        self.displayMessage('Server err: ' + str(err))
 
     def displayMessage(self, msg):
         self.statusBar.setText(msg)
         self.statusBar.show()
+
+    def end(self):
+        if self.moveCalculation:
+            self.moveCalculation.quit()
