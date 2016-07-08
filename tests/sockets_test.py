@@ -5,5 +5,5 @@ from ultimatetictactoe.game.boards import Macroboard, GameEndedError, Square
 from ultimatetictactoe.game.players.human import RemotePlayer, ServerPlayer
 
 
-class TestBots(unittest.TestCase):
+class TestScokets(unittest.TestCase):
     pass
