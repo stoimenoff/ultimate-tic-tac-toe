@@ -43,6 +43,7 @@ class TestMicroboard(unittest.TestCase):
         self.assertEqual(self.board.export_grid()[0][0], Square.X)
         with self.assertRaises(IllegalMoveError):
             self.board.set_square(0, 0, Square.O)
+        self.board = Microboard()
         with self.assertRaises(IllegalMoveError):
             self.board.set_square(0, 0, Square.EMPTY)
 
@@ -72,6 +73,9 @@ class TestMicroboard(unittest.TestCase):
         self.board.undo_last_move()
         self.assertEqual(grid, self.board.grid)
         self.assertEqual(move, self.board.last_move)
+        self.board.undo_last_move()
+        self.assertEqual(grid, self.board.grid)
+        self.assertEqual(move, self.board.last_move)
 
     def test_lines(self):
         EMPTY_LINES = [[Square.EMPTY, Square.EMPTY, Square.EMPTY],
@@ -97,6 +101,20 @@ class TestMicroboard(unittest.TestCase):
         self.board.set_square(1, 1, Square.O)
         self.board.set_square(2, 2, Square.X)
         self.assertEqual(self.board.lines(), LINES)
+
+    def test_winner(self):
+        self.assertIsNone(self.board.winner())
+        self.board.set_square(0, 0, Square.X)
+        self.board.set_square(0, 1, Square.X)
+        self.board.set_square(0, 2, Square.X)
+        self.assertEqual(self.board.winner(), Square.X)
+        with self.assertRaises(IllegalMoveError):
+            self.board.set_square(0, 0, Square.O)
+        self.board = Microboard()
+        self.board.set_square(0, 0, Square.O)
+        self.board.set_square(0, 1, Square.O)
+        self.board.set_square(0, 2, Square.O)
+        self.assertEqual(self.board.winner(), Square.O)
 
 
 class TestMacroboard(unittest.TestCase):
@@ -182,6 +200,12 @@ class TestMacroboard(unittest.TestCase):
         self.assertEqual(self.board.to_coords(0, 8), (0, 2, 0, 2))
         self.assertEqual(self.board.to_coords(8, 0), (2, 0, 2, 0))
         self.assertEqual(self.board.to_coords(8, 8), (2, 2, 2, 2))
+        with self.assertRaises(IndexError):
+            self.board.to_coords(200, 1)
+        with self.assertRaises(IndexError):
+            self.board.to_coords(2, 100)
+        with self.assertRaises(IndexError):
+            self.board.to_coords(200, 100)
 
     def test_to_positions(self):
         POSITIONS = [(0, 0), (0, 1), (0, 2), (1, 3), (4, 4), (5, 7), (2, 3),
@@ -276,6 +300,19 @@ class TestMacroboard(unittest.TestCase):
                        [State.O_WON, State.X_WON, State.O_WON]]
         self.play_board()
         self.assertEqual(self.board.state_lines(), STATE_LINES)
+
+    def test_available_moves(self):
+        self.board.make_move(2, 2)
+        expected_moves = {(6, 6), (6, 7), (6, 8), (7, 6), (7, 7), (7, 8),
+                          (8, 6), (8, 7), (8, 8)}
+        self.assertEqual(expected_moves, set(self.board.available_moves))
+
+    def test_can_play_on_all_active(self):
+        for move in self.MOVES:
+            expected = (set(self.board.active_boards) ==
+                        set(self.board.available_boards))
+            self.assertEqual(expected, self.board.can_play_on_all_active())
+            self.board.make_move(*move)
 
 
 if __name__ == '__main__':
