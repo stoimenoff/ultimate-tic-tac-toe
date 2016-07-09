@@ -107,8 +107,7 @@ class MultiPlayer(QWidget):
     def __init__(self):
         super(MultiPlayer, self).__init__()
         self.exitButton = QPushButton('Exit to menu')
-        self.exitButton.clicked.connect(self.stopAll)
-        self.game = None
+        self.exitButton.clicked.connect(self.exit)
         self.menu = MultiPlayerMenu()
         self.menu.connectButton.clicked.connect(self.connect)
         self.menu.hostButton.clicked.connect(self.host)
@@ -122,28 +121,32 @@ class MultiPlayer(QWidget):
         layout.addWidget(self.exitButton)
 
         self.setLayout(layout)
+        self.clientGame = None
+        self.serverGame = None
+        self.hotseatGame = None
 
     def host(self):
         name = self.menu.nameField.text()
         port = self.menu.portSpinBox.value()
-        self.game = ServerGame(name, port)
-        self.showGame()
+        self.serverGame = ServerGame(name, port)
+        self.showGame(self.serverGame)
 
     def connect(self):
         name = self.menu.nameField.text()
         ip = self.menu.ipField.text()
         port = self.menu.portSpinBox.value()
-        self.game = ClientGame(name, ip, port)
-        self.showGame()
+        self.clientGame = ClientGame(name, ip, port)
+        self.showGame(self.clientGame)
 
     def hotseat(self):
-        self.game = HotSeatGame()
-        self.showGame()
+        self.hotseatGame = HotSeatGame()
+        self.showGame(self.hotseatGame)
 
-    def showGame(self):
-        self.stack.addWidget(self.game)
-        self.stack.setCurrentWidget(self.game)
+    def showGame(self, game):
+        self.stack.addWidget(game)
+        self.stack.setCurrentWidget(game)
 
-    def stopAll(self):
+    def exit(self):
         self.stack.setCurrentWidget(self.menu)
-        self.game.end()
+        if self.serverGame:
+            self.serverGame.end()

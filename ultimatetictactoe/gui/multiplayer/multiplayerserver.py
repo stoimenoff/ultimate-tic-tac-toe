@@ -1,43 +1,73 @@
 from ... import game
+from ...game.players.human.onlineplayer import (BadRequestError,
+                                                BadResponseError)
 from ..qboards import QMacroBoard
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QObject
 from PyQt5.QtWidgets import (QLabel, QVBoxLayout, QWidget)
 from PyQt5.QtCore import QThread, pyqtSignal, QMutex, QWaitCondition
 
 
-class WaitForRequest(QThread):
+class RequestHandler(QObject):
     waitingRequest = pyqtSignal()
-    requestHandled = pyqtSignal()
     requestAccepted = pyqtSignal()
     error = pyqtSignal(Exception)
+    terminated = pyqtSignal()
 
     def __init__(self, parent):
-        super(WaitForRequest, self).__init__()
+        super(RequestHandler, self).__init__()
         self.parent = parent
-        self.listen = True
+        self.__terminated = False
+        self.mutex = QMutex()
+        self.waitForClick = QWaitCondition()
 
     def run(self):
-        while self.listen:
-            print('Waiting for request')
+        print('run')
+        self.__terminated = False
+        while not self.__terminated:
+            # print('Waiting for request')
             self.waitingRequest.emit()
             try:
                 self.parent.server.listen(self.onMoveRequest)
             except OSError as e:
                 print('error ', e)
                 self.error.emit(e)
-                return
-            self.requestHandled.emit()
+                self.__terminated = True
+            except BadRequestError as e:
+                print(e)
+                continue
+        print('terminated')
+        self.terminated.emit()
 
     def onMoveRequest(self, name, macroboard):
-        # self.parent.moveRequest(name, macroboard)
+        if self.__terminated:
+            return None
         self.opponentName = name
         self.macroboard = macroboard
         self.requestAccepted.emit()
-        self.parent.mutex.lock()
-        self.parent.waitForClick.wait(self.parent.mutex)
+        self.mutex.lock()
+        self.waitForClick.wait(self.mutex)
+        if self.__terminated:
+            return None
         move = self.parent.last_click
-        self.parent.mutex.unlock()
+        self.mutex.unlock()
         return move
+
+    def wakeOnClick(self):
+        self.mutex.lock()
+        self.waitForClick.wakeOne()
+        self.mutex.unlock()
+
+    def terminate(self):
+        if self.__terminated:
+            return
+        self.__terminated = True
+        self.wakeOnClick()
+        dummyConnection = game.players.human.RemotePlayer()
+        dummyConnection.set_target(*self.parent.server.address())
+        try:
+            dummyConnection.choose_move(game.boards.Macroboard())
+        except (OSError, BadResponseError):
+            return
 
 
 class ServerGame(QWidget):
@@ -57,24 +87,39 @@ class ServerGame(QWidget):
         layout.addWidget(self.statusBar)
         self.setLayout(layout)
 
-        self.server = game.players.human.ServerPlayer(name)
-        self.server.set_port(port)
+        self.server = game.players.human.ServerPlayer(name, port)
         self.opponentConnected = False
         self.board = None
         self.last_click = None
+        self.qBoard.updateBoard(game.boards.Macroboard())
         self.qBoard.setClickEnabled(False)
 
-        self.mutex = QMutex()
-        self.waitForClick = QWaitCondition()
-        self.waitForRequest()
+        self.requestThread = QThread()
 
-    def waitForRequest(self):
-        self.requestThread = WaitForRequest(self)
-        self.requestThread.waitingRequest.connect(self.waitingOpponentMessage)
-        self.requestThread.requestAccepted.connect(self.moveRequest)
-        # self.requestThread.requestHandled.connect(self.waitForRequest)
-        self.requestThread.error.connect(self.serverError)
+        self.requestWorker = RequestHandler(self)
+        self.requestWorker.waitingRequest.connect(self.waitingOpponentMessage)
+        self.requestWorker.requestAccepted.connect(self.moveRequest)
+        self.requestWorker.error.connect(self.serverError)
+        self.requestWorker.moveToThread(self.requestThread)
+        self.requestThread.started.connect(self.requestWorker.run)
+        # self.requestWorker.terminated.connect(self.requestThread.quit)
+
         self.requestThread.start()
+
+    def __del__(self):
+        self.requestThread.quit()
+
+    def reset(self, name, port):
+        self.requestWorker.terminate()
+        self.server = game.players.human.ServerPlayer(name, port)
+        self.opponentConnected = False
+        self.board = None
+        self.last_click = None
+        self.qBoard.updateBoard(game.boards.Macroboard())
+        self.qBoard.setClickEnabled(False)
+        self.displayMessage('')
+        # self.requestThread = QThread()
+        self.requestWorker.run()
 
     def onButtonClick(self):
         self.qBoard.setClickEnabled(False)
@@ -88,32 +133,25 @@ class ServerGame(QWidget):
             return
         self.qBoard.updateBoard(self.board)
         self.last_click = (px, py)
-        self.wakeRequestThread()
+        self.requestWorker.wakeOnClick()
 
     def moveRequest(self):
         if not self.opponentConnected:
-            self.displayMessage(self.requestThread.opponentName +
+            self.displayMessage(self.requestWorker.opponentName +
                                 ' connected to you! Game on!')
             self.titleBar.setText('Game against ' +
-                                  self.requestThread.opponentName)
+                                  self.requestWorker.opponentName)
             self.titleBar.show()
             self.opponentConnected = True
         else:
             self.displayMessage('Your turn!')
-        self.board = self.requestThread.macroboard
+        self.board = self.requestWorker.macroboard
         if self.board.state == game.boards.State.IN_PROGRESS:
             self.qBoard.setClickEnabled(True)
         else:
             self.announceGameResult()
-            # release waiting thread
-            self.requestThread.listen = False
-            self.wakeRequestThread()
+            self.requestWorker.terminate()
         self.qBoard.updateBoard(self.board)
-
-    def wakeRequestThread(self):
-        self.mutex.lock()
-        self.waitForClick.wakeOne()
-        self.mutex.unlock()
 
     def serverError(self, err):
         print('Server error:', err)
@@ -141,4 +179,4 @@ class ServerGame(QWidget):
         self.displayMessage(message)
 
     def end(self):
-        self.requestThread.quit()
+        self.requestWorker.terminate()
