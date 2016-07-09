@@ -150,3 +150,5 @@ class MultiPlayer(QWidget):
         self.stack.setCurrentWidget(self.menu)
         if self.serverGame:
             self.serverGame.end()
+        if self.clientGame:
+            self.clientGame.end()

@@ -1,8 +1,41 @@
 from ... import game
 from ..qboards import QMacroBoard
-from ..singleplayer.botgame import WaitForMove
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QObject
 from PyQt5.QtWidgets import (QLabel, QVBoxLayout, QWidget)
+from ...game.players.human.onlineplayer import (BadRequestError,
+                                                BadResponseError)
+from PyQt5.QtCore import QThread, pyqtSignal
+
+
+class MoveRequestMaker(QObject):
+    requestMade = pyqtSignal()
+    serverResponsed = pyqtSignal(int, int)
+    error = pyqtSignal(Exception)
+    terminated = pyqtSignal()
+
+    def __init__(self, parent):
+        super(MoveRequestMaker, self).__init__()
+        self.parent = parent
+        self.__terminated = False
+
+    def run(self):
+        # print('Making request')
+        self.__terminated = False
+        self.requestMade.emit()
+        try:
+            move = self.parent.opponent.choose_move(self.parent.board)
+        except (OSError, BadResponseError) as e:
+            if not self.__terminated:
+                print('error ', e)
+                self.error.emit(e)
+            return
+        if not self.__terminated:
+            self.serverResponsed.emit(*move)
+        self.terminated.emit()
+
+    def terminate(self):
+        self.__terminated = True
+        self.parent.opponent.cancel()
 
 
 class ClientGame(QWidget):
@@ -25,10 +58,13 @@ class ClientGame(QWidget):
         self.opponent = game.players.human.RemotePlayer(name, host, port)
         self.opponentConnected = False
         self.board = game.boards.Macroboard()
-        self.moveCalculation = None
+        self.requestMaker = None
+        self.requestThread = None
 
-    def setServerAddress(self, host, port):
-        self.opponent.set_target(host, port)
+    def __del__(self):
+        if self.requestMaker:
+            self.requestMaker.terminate()
+            self.requestThread.wait()
 
     def buttonClick(self):
         self.qBoard.setClickEnabled(False)
@@ -48,19 +84,18 @@ class ClientGame(QWidget):
         self.displayMessage('Waiting for opponent...')
         self.opponentMove()
 
-    def opponentMove(self, makeMove=True):
-        self.moveCalculation = WaitForMove(self.opponent, self.board)
-        if makeMove:
-            self.moveCalculation.done.connect(self.makeOpponentMove)
-        self.moveCalculation.error.connect(self.serverError)
-        self.moveCalculation.start()
+    def opponentMove(self):
+        self.requestThread = QThread()
+        self.requestMaker = MoveRequestMaker(self)
+        self.requestMaker.serverResponsed.connect(self.makeOpponentMove)
+        self.requestMaker.error.connect(self.serverError)
+        self.requestMaker.moveToThread(self.requestThread)
+        self.requestThread.started.connect(self.requestMaker.run)
+        self.requestMaker.terminated.connect(self.requestThread.quit)
+        self.requestThread.start()
 
     def makeOpponentMove(self, px, py):
-        try:
-            self.board.make_move(px, py)
-        except game.boards.IllegalMoveError as err:
-            print(err)
-            return
+        self.board.make_move(px, py)
         self.displayMessage('Your turn.')
         self.titleBar.setText('Game against ' + self.opponent.name)
         self.titleBar.show()
@@ -91,5 +126,5 @@ class ClientGame(QWidget):
         self.statusBar.show()
 
     def end(self):
-        if self.moveCalculation:
-            self.moveCalculation.quit()
+        if self.requestMaker:
+            self.requestMaker.terminate()

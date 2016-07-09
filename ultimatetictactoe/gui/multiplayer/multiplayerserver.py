@@ -102,24 +102,13 @@ class ServerGame(QWidget):
         self.requestWorker.error.connect(self.serverError)
         self.requestWorker.moveToThread(self.requestThread)
         self.requestThread.started.connect(self.requestWorker.run)
-        # self.requestWorker.terminated.connect(self.requestThread.quit)
+        self.requestWorker.terminated.connect(self.requestThread.quit)
 
         self.requestThread.start()
 
     def __del__(self):
-        self.requestThread.quit()
-
-    def reset(self, name, port):
         self.requestWorker.terminate()
-        self.server = game.players.human.ServerPlayer(name, port)
-        self.opponentConnected = False
-        self.board = None
-        self.last_click = None
-        self.qBoard.updateBoard(game.boards.Macroboard())
-        self.qBoard.setClickEnabled(False)
-        self.displayMessage('')
-        # self.requestThread = QThread()
-        self.requestWorker.run()
+        self.requestThread.wait()
 
     def onButtonClick(self):
         self.qBoard.setClickEnabled(False)
