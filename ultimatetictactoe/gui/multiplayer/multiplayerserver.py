@@ -1,6 +1,5 @@
 from ... import game
-from ...game.players.human.onlineplayer import (BadRequestError,
-                                                BadResponseError)
+from ...game.players.human.onlineplayer import BadRequestError
 from ..qboards import QMacroBoard
 from PyQt5.QtCore import Qt, QObject
 from PyQt5.QtWidgets import (QLabel, QVBoxLayout, QWidget)
@@ -8,6 +7,9 @@ from PyQt5.QtCore import QThread, pyqtSignal, QMutex, QWaitCondition
 
 
 class RequestHandler(QObject):
+    """
+    Worker object for handling requests.
+    """
     waitingRequest = pyqtSignal()
     requestAccepted = pyqtSignal()
     error = pyqtSignal(Exception)
@@ -21,6 +23,22 @@ class RequestHandler(QObject):
         self.waitForClick = QWaitCondition()
 
     def run(self):
+        """
+        Uses parent's server to listen for request.
+
+        When a valid request is handled, emits requestAccepted singal
+        and waits on Mutex condition.
+        The parent should wake the worker when a click is made
+        via wakeOnClick() method.
+        When woken respond to the request with the click that was made.
+
+        Can be terminated from the parent.
+
+        Listening ignores bad requests.
+        If OSError occurres, terminates itself and emits error signal.
+
+        On termination emits the terminate signal.
+        """
         # print('run')
         self.__terminated = False
         while not self.__terminated:
@@ -44,13 +62,16 @@ class RequestHandler(QObject):
         self.opponentName = name
         self.macroboard = macroboard
         self.requestAccepted.emit()
-        self.mutex.lock()
-        self.waitForClick.wait(self.mutex)
+        self.__sleepUntilClick()
         if self.__terminated:
             return None
         move = self.parent.last_click
-        self.mutex.unlock()
         return move
+
+    def __sleepUntilClick(self):
+        self.mutex.lock()
+        self.waitForClick.wait(self.mutex)
+        self.mutex.unlock()
 
     def wakeOnClick(self):
         self.mutex.lock()
@@ -58,16 +79,14 @@ class RequestHandler(QObject):
         self.mutex.unlock()
 
     def terminate(self):
+        """
+        Terminates the worker.
+        """
         if self.__terminated:
             return
         self.__terminated = True
         self.wakeOnClick()
-        dummyConnection = game.players.human.RemotePlayer()
-        dummyConnection.set_target(*self.parent.server.address())
-        try:
-            dummyConnection.choose_move(game.boards.Macroboard())
-        except (OSError, BadResponseError):
-            return
+        self.parent.server.stop()
 
 
 class ServerGame(QWidget):

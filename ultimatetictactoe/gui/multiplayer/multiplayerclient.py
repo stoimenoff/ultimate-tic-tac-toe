@@ -7,6 +7,9 @@ from PyQt5.QtCore import QThread, pyqtSignal
 
 
 class MoveRequestMaker(QObject):
+    """
+    Worker object for making requests.
+    """
     requestMade = pyqtSignal()
     serverResponsed = pyqtSignal(int, int)
     error = pyqtSignal(Exception)
@@ -18,6 +21,19 @@ class MoveRequestMaker(QObject):
         self.__terminated = False
 
     def run(self):
+        """
+        Uses parent's remote player and parent's board to make a request.
+
+        When a response is sent by the server emits it through
+        serverResponsed signal and terminates.
+
+        Can be force terminated from the parent.
+
+        If OSError or BadResponseError occurres, terminates itself
+        and emits error signal.
+
+        On termination emits the terminate signal.
+        """
         # print('Making request')
         self.__terminated = False
         self.requestMade.emit()
@@ -27,13 +43,16 @@ class MoveRequestMaker(QObject):
             if not self.__terminated:
                 print('error ', e)
                 self.error.emit(e)
-            return
+                self.__terminated = True
         if not self.__terminated:
             self.serverResponsed.emit(*move)
         print('Worker terminated')
         self.terminated.emit()
 
     def terminate(self):
+        """
+        Terminates the worker.
+        """
         if not self.__terminated:
             self.__terminated = True
             self.parent.opponent.cancel()
@@ -79,7 +98,7 @@ class ClientGame(QWidget):
             return
         self.qBoard.updateBoard(self.board)
         if self.board.state != game.boards.State.IN_PROGRESS:
-            self.opponentMove(False)
+            self.opponentMove()
             self.announceGameResult()
             return
         self.displayMessage('Waiting for opponent...')
@@ -102,7 +121,6 @@ class ClientGame(QWidget):
         self.titleBar.show()
         self.qBoard.updateBoard(self.board)
         if self.board.state != game.boards.State.IN_PROGRESS:
-            self.opponentMove(False)
             self.announceGameResult()
             return
         self.qBoard.setClickEnabled(True)

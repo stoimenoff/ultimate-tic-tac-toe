@@ -20,6 +20,9 @@ class BadResponseError(Exception):
 
 
 class RemotePlayer(Player):
+    """
+    Client that makes requests to a remote server via socket connection.
+    """
     def __init__(self, opponentName='Remote player',
                  host=DEFAULT_CONNECT, port=DEFAULT_PORT):
         super(RemotePlayer, self).__init__(None)
@@ -29,6 +32,18 @@ class RemotePlayer(Player):
         self.__cancelled = False
 
     def choose_move(self, macroboard):
+        """
+        Connects to the remote server and ask for a move.
+        If the socket connection fails will NOT handle exceptions.
+
+        Raises BadResponseError, if the server response is not valid.
+
+        Blocking, can be cancelled from another thread by calling
+        cancel() on the object.
+
+        If cancelled return, otherwise will always return valid move
+        or raise BadResponseError.
+        """
         self.__cancelled = False
         while not self.__cancelled:
             try:
@@ -37,6 +52,10 @@ class RemotePlayer(Player):
                 continue
 
     def cancel(self):
+        """
+        Cancel the choose_move() method.
+        Does nothing, if choose_move() is not called.
+        """
         self.__cancelled = True
 
     def __connect(self, macroboard):
@@ -70,6 +89,10 @@ class RemotePlayer(Player):
         return byte_array
 
     def set_target(self, host, port=DEFAULT_PORT):
+        """
+        Set the ip and port of the server.
+        Port has default value.
+        """
         self.host = host
         self.port = port
 
@@ -88,6 +111,12 @@ class RemotePlayer(Player):
 
 
 class ServerPlayer(Player):
+    """
+    Server that handles requests from client.
+
+    The first client to make a valid request is remebered as opponent
+    and further on only requests from this client are handled.
+    """
     def __init__(self, name='Server player', port=DEFAULT_PORT,
                  host=DEFAULT_HOST):
         super(ServerPlayer, self).__init__(name)
@@ -97,6 +126,22 @@ class ServerPlayer(Player):
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def listen(self, on_move_request):
+        """
+        Waits a connection from a remote player via socket connection.
+        If the socket connection fails will NOT handle exceptions.
+
+        Raises BadRequestError, if the client request is not valid
+        or the client is not the opponent.
+
+        Blocking, can be cancelled from another thread by calling
+        stop() on the object.
+
+        When a valid request is made, on_move_request function is called
+        with the name of the opponent and the board he sent.
+        The function should return a move for the board.
+        The return value of the function is not checked! If it is
+        NOT a valid move, it WILL BE sent to the client.
+        """
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         # self.__socket.settimeout(DEFAULT_SERVER_TIMEOUT)
@@ -121,9 +166,28 @@ class ServerPlayer(Player):
                 connection.sendall(pickle.dumps((self.name, move)))
 
     def reset(self):
+        """
+        Resets the remembered opponent.
+        """
         self.opponent = None
 
+    def stop(self):
+        """
+        Interrupts listen() by faking a request.
+        Does nothing if listen() is not invoked.
+        """
+        dummyConnection = RemotePlayer()
+        dummyConnection.set_target(*self.address())
+        try:
+            dummyConnection.choose_move(Macroboard())
+        except (OSError, BadResponseError):
+            return
+
     def address(self):
+        """
+        Returns the addres of the server.
+        Tuple of ip and port.
+        """
         return (self.__host, self.__port)
 
     def __is_not_valid(self, unpickled_data):
