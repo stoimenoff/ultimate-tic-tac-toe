@@ -2,8 +2,7 @@ from ... import game
 from ..qboards import QMacroBoard
 from PyQt5.QtCore import Qt, QObject
 from PyQt5.QtWidgets import (QLabel, QVBoxLayout, QWidget)
-from ...game.players.human.onlineplayer import (BadRequestError,
-                                                BadResponseError)
+from ...game.players.human.onlineplayer import BadResponseError
 from PyQt5.QtCore import QThread, pyqtSignal
 
 
@@ -31,11 +30,13 @@ class MoveRequestMaker(QObject):
             return
         if not self.__terminated:
             self.serverResponsed.emit(*move)
+        print('Worker terminated')
         self.terminated.emit()
 
     def terminate(self):
-        self.__terminated = True
-        self.parent.opponent.cancel()
+        if not self.__terminated:
+            self.__terminated = True
+            self.parent.opponent.cancel()
 
 
 class ClientGame(QWidget):

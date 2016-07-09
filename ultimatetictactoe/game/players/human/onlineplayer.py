@@ -30,8 +30,6 @@ class RemotePlayer(Player):
 
     def choose_move(self, macroboard):
         self.__cancelled = False
-        self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.__socket.settimeout(DEFAULT_CLIENT_TIMEOUT)
         while not self.__cancelled:
             try:
                 return self.__connect(macroboard)
@@ -42,17 +40,20 @@ class RemotePlayer(Player):
         self.__cancelled = True
 
     def __connect(self, macroboard):
+        self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__socket.settimeout(DEFAULT_CLIENT_TIMEOUT)
         with self.__socket:
             self.__socket.connect((self.host, self.port))
             self.__socket.sendall(self.__get_data(macroboard))
             data = None
             while not self.__cancelled and not data:
                 try:
-                    print('recive not cancelled')
+                    # print('Recieve not cancelled')
                     data = self.__socket.recv(BYTES_LENGTH)
                 except socket.timeout:
                     continue
-
+            if self.__cancelled:
+                return
             print('Received', repr(data), ' Size:', len(data))
             try:
                 unpickled_data = pickle.loads(data)
@@ -65,7 +66,7 @@ class RemotePlayer(Player):
 
     def __get_data(self, macroboard):
         byte_array = pickle.dumps((self.opponentName, macroboard))
-        print('size', len(byte_array))
+        # print('size', len(byte_array))
         return byte_array
 
     def set_target(self, host, port=DEFAULT_PORT):

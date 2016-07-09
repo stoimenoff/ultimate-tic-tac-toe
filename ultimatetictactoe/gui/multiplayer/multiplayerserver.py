@@ -21,7 +21,7 @@ class RequestHandler(QObject):
         self.waitForClick = QWaitCondition()
 
     def run(self):
-        print('run')
+        # print('run')
         self.__terminated = False
         while not self.__terminated:
             # print('Waiting for request')
@@ -35,7 +35,7 @@ class RequestHandler(QObject):
             except BadRequestError as e:
                 print(e)
                 continue
-        print('terminated')
+        print('Worker terminated')
         self.terminated.emit()
 
     def onMoveRequest(self, name, macroboard):
