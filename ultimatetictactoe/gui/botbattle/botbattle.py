@@ -3,8 +3,7 @@ from ..qboards import QMacroBoard
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QPushButton,
                              QLabel)
 from PyQt5.QtGui import QFont
-from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QThread, pyqtSignal, Qt, QObject
 import datetime
 import time
 
@@ -12,11 +11,12 @@ import time
 DEFAULT_TIME = 1
 
 
-class MoveThread(QThread):
+class MoveCalculation(QObject):
     calculated = pyqtSignal(int, int)
+    terminated = pyqtSignal()
 
     def __init__(self, bot, board, minimumTime=DEFAULT_TIME):
-        super(MoveThread, self).__init__()
+        super(MoveCalculation, self).__init__()
         self.bot = bot
         self.board = board
         self.minimumTime = minimumTime
@@ -28,6 +28,7 @@ class MoveThread(QThread):
         timeLeft = self.minimumTime - delta.total_seconds()
         if timeLeft > 0:
             time.sleep(timeLeft)
+        self.terminated.emit()
         self.calculated.emit(*move)
 
 
@@ -48,6 +49,7 @@ class BotBattle(QWidget):
         self.qBoard.updateBoard(self.board)
 
         self.interrupted = False
+        self.moveThread = None
 
         buttonLayout = self.createButton()
         self.title = self.createTitle()
@@ -57,10 +59,18 @@ class BotBattle(QWidget):
         layout.addLayout(buttonLayout)
         self.setLayout(layout)
 
+    def __del__(self):
+        if self.moveThread:
+            self.moveThread.wait()
+
     def botMove(self):
-        self.moveCalculation = MoveThread(self.on_turn, self.board)
+        self.moveThread = QThread()
+        self.moveCalculation = MoveCalculation(self.on_turn, self.board)
         self.moveCalculation.calculated.connect(self.makeBotMove)
-        self.moveCalculation.start()
+        self.moveCalculation.moveToThread(self.moveThread)
+        self.moveThread.started.connect(self.moveCalculation.run)
+        self.moveCalculation.terminated.connect(self.moveThread.quit)
+        self.moveThread.start()
 
     def makeBotMove(self, px, py):
         self.board.make_move(px, py)

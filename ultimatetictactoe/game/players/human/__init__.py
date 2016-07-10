@@ -1,2 +1,4 @@
-from .onlineplayer import RemotePlayer, ServerPlayer
-__all__ = ['RemotePlayer', 'ServerPlayer']
+from .onlineplayer import (RemotePlayer, ServerPlayer, BadRequestError,
+                           BadResponseError)
+__all__ = ['RemotePlayer', 'ServerPlayer', 'BadRequestError',
+           'BadResponseError']

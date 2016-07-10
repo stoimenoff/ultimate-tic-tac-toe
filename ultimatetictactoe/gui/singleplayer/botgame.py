@@ -1,12 +1,13 @@
 from ... import game
 from ..qboards import QMacroBoard
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal, QObject
 
 
-class WaitForMove(QThread):
+class WaitForMove(QObject):
     done = pyqtSignal(int, int)
     error = pyqtSignal(Exception)
+    terminated = pyqtSignal()
 
     def __init__(self, player, board):
         super(WaitForMove, self).__init__()
@@ -23,6 +24,7 @@ class WaitForMove(QThread):
             return
         # print('Move')
         self.done.emit(*move)
+        self.terminated.emit()
 
 
 class BotGame(QWidget):
@@ -35,7 +37,12 @@ class BotGame(QWidget):
         layout.addWidget(self.qBoard)
         self.setLayout(layout)
 
+        self.moveThread = None
         self.initGame(humanIsNotFirst, secondPlayer)
+
+    def __del__(self):
+        if self.moveThread:
+            self.moveThread.wait()
 
     def initGame(self, humanIsNotFirst, secondPlayer):
         self.qBoard.setClickEnabled(True)
@@ -61,10 +68,14 @@ class BotGame(QWidget):
         print(e)
 
     def botMove(self):
+        self.moveThread = QThread()
         self.moveCalculation = WaitForMove(self.bot, self.board)
         self.moveCalculation.done.connect(self.makeBotMove)
         self.moveCalculation.error.connect(self.botMoveError)
-        self.moveCalculation.start()
+        self.moveCalculation.moveToThread(self.moveThread)
+        self.moveThread.started.connect(self.moveCalculation.run)
+        self.moveCalculation.terminated.connect(self.moveThread.quit)
+        self.moveThread.start()
 
     def buttonClick(self):
         self.qBoard.setClickEnabled(False)
